@@ -39,30 +39,25 @@ class PMA_Navigation
             || ! empty($_REQUEST['full'])
             || ! empty($_REQUEST['reload'])
         ) {
-            if ($GLOBALS['cfg']['ShowDatabasesNavigationAsTree']) {
-                // provide database tree in navigation
-                $navRender = $tree->renderState();
-            } else {
-                // provide legacy pre-4.0 navigation
-                $navRender = $tree->renderDbSelect();
-            }
+            $treeRender = $tree->renderState();
         } else {
-            $navRender = $tree->renderPath();
+            $treeRender = $tree->renderPath();
         }
-        if (! $navRender) {
+
+        if (! $treeRender) {
             $retval .= PMA_Message::error(
-                __('An error has occurred while loading the navigation display')
+                __('An error has occurred while loading the navigation tree')
             )->getDisplay();
         } else {
-            $retval .= $navRender;
+            $retval .= $treeRender;
         }
 
         if (! PMA_Response::getInstance()->isAjax()) {
             // closes the tags that were opened by the navigation header
-            $retval .= '</div>'; // pma_navigation_tree
-            $retval .= '</div>'; // pma_navigation_content
+            $retval .= '</div>';
+            $retval .= '</div>';
             $retval .= $this->_getDropHandler();
-            $retval .= '</div>'; // pma_navigation
+            $retval .= '</div>';
         }
 
         return $retval;

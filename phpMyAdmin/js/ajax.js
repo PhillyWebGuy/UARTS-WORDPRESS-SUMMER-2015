@@ -165,7 +165,7 @@ var AJAX = {
         // Show lock icon if locked targets is not empty.
         // otherwise remove lock icon
         if (!jQuery.isEmptyObject(AJAX.lockedTargets)) {
-            $('#lock_page_icon').html(PMA_getImage('s_lock.png',PMA_messages.strLockToolTip).toString());
+            $('#lock_page_icon').html(PMA_getImage('s_lock.png').toString());
         } else {
             $('#lock_page_icon').html('');
         }
@@ -306,7 +306,6 @@ var AJAX = {
         }
         if (typeof data.success != 'undefined' && data.success) {
             $table_clone = false;
-            $('html, body').animate({scrollTop: 0}, 'fast');
             PMA_ajaxRemoveMessage(AJAX.$msgbox);
 
             if (data._redirect) {
@@ -432,6 +431,16 @@ var AJAX = {
                     AJAX._callback.call();
                 }
                 AJAX._callback = function () {};
+            });
+            // initializes all lock-page elements lock-id and
+            // val-hash data property
+            $('#page_content form.lock-page textarea, ' +
+            '#page_content form.lock-page input[type="text"]').each(function(i){
+                $(this).data('lock-id', i);
+                // val-hash is the hash of default value of the field
+                // so that it can be compared with new value hash
+                // to check whether field was modified or not.
+                $(this).data('val-hash', AJAX.hash($(this).val()));
             });
         } else {
             PMA_ajaxShowMessage(data.error, false);
@@ -571,8 +580,8 @@ var AJAX = {
              * Re-attach a generic event handler to clicks
              * on pages and submissions of forms
              */
-            $(document).off('click', 'a').on('click', 'a', AJAX.requestHandler);
-            $(document).off('submit', 'form').on('submit', 'form', AJAX.requestHandler);
+            $('a').die('click').live('click', AJAX.requestHandler);
+            $('form').die('submit').live('submit', AJAX.requestHandler);
             AJAX.cache.update();
             callback();
         }
@@ -595,23 +604,6 @@ AJAX.registerOnload('functions.js', function () {
             $(this).data('onsubmit', this.onsubmit).attr('onsubmit', '');
         }
     });
-
-    /**
-     * Workaround for passing submit button name,value on ajax form submit
-     * by appending hidden element with submit button name and value.
-     */
-    $("#page_content").on('click', 'form input[type=submit]', function() {
-        var buttonName = $(this).attr('name');
-        if (typeof buttonName === 'undefined') {
-            return;
-        }
-        $(this).closest('form').append($('<input/>', {
-            'type' : 'hidden',
-            'name' : buttonName,
-            'value': $(this).val()
-        }));
-    });
-
     /**
      * Attach event listener to events when user modify visible
      * Input or Textarea fields to make changes in forms
@@ -892,7 +884,7 @@ AJAX.setUrlHash = (function (jQuery, window) {
 
     // Fix favicon disappearing in Firefox when setting location.hash
     function resetFavicon() {
-        if (navigator.userAgent.indexOf('Firefox') > -1) {
+        if (jQuery.browser.mozilla) {
             // Move the link tags for the favicon to the bottom
             // of the head element to force a reload of the favicon
             $('head > link[href=favicon\\.ico]').appendTo('head');
@@ -1007,8 +999,8 @@ $(function () {
  * Attach a generic event handler to clicks
  * on pages and submissions of forms
  */
-$(document).on('click', 'a', AJAX.requestHandler);
-$(document).on('submit', 'form', AJAX.requestHandler);
+$('a').live('click', AJAX.requestHandler);
+$('form').live('submit', AJAX.requestHandler);
 
 /**
  * Gracefully handle fatal server errors

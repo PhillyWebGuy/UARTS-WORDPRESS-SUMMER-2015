@@ -12,8 +12,8 @@
  * Unbind all event handlers before tearing down a page
  */
 AJAX.registerTeardown('server_databases.js', function () {
-    $(document).off('submit', "#dbStatsForm");
-    $(document).off('submit', '#create_database_form.ajax');
+    $("#dbStatsForm").die('submit');
+    $('#create_database_form.ajax').die('submit');
 });
 
 /**
@@ -27,7 +27,7 @@ AJAX.registerOnload('server_databases.js', function () {
     /**
      * Attach Event Handler for 'Drop Databases'
      */
-    $(document).on('submit', "#dbStatsForm", function (event) {
+    $("#dbStatsForm").live('submit', function (event) {
         event.preventDefault();
 
         var $form = $(this);
@@ -91,7 +91,7 @@ AJAX.registerOnload('server_databases.js', function () {
     /**
      * Attach Ajax event handlers for 'Create Database'.
      */
-    $(document).on('submit', '#create_database_form.ajax', function (event) {
+    $('#create_database_form.ajax').live('submit', function (event) {
         event.preventDefault();
 
         var $form = $(this);
@@ -125,13 +125,6 @@ AJAX.registerOnload('server_databases.js', function () {
             } else {
                 PMA_ajaxShowMessage(data.error, false);
             }
-
-            // make ajax request to load db structure page - taken from ajax.js
-            var dbStruct_url = data.url_query;
-            dbStruct_url = dbStruct_url.replace(/amp;/ig, '');
-            var params = 'ajax_request=true&ajax_page_request=true';
-            params += AJAX.cache.menus.getRequestParam();
-            $.get(dbStruct_url, params, AJAX.responseHandler);
         }); // end $.post()
-    }); // end $(document).on()
+    }); // end $().live()
 }); // end $()

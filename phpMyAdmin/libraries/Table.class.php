@@ -407,19 +407,21 @@ class PMA_Table
     /**
      * generates column specification for ALTER or CREATE TABLE syntax
      *
-     * @param string      $name          name
-     * @param string      $type          type ('INT', 'VARCHAR', 'BIT', ...)
-     * @param string      $length        length ('2', '5,2', '', ...)
-     * @param string      $attribute     attribute
-     * @param string      $collation     collation
-     * @param bool|string $null          with 'NULL' or 'NOT NULL'
-     * @param string      $default_type  whether default is CURRENT_TIMESTAMP,
-     *                                   NULL, NONE, USER_DEFINED
-     * @param string      $default_value default value for USER_DEFINED
-     *                                   default type
-     * @param string      $extra         'AUTO_INCREMENT'
-     * @param string      $comment       field comment
-     * @param string      $move_to       new position for column
+     * @param string      $name           name
+     * @param string      $type           type ('INT', 'VARCHAR', 'BIT', ...)
+     * @param string      $index          index
+     * @param string      $length         length ('2', '5,2', '', ...)
+     * @param string      $attribute      attribute
+     * @param string      $collation      collation
+     * @param bool|string $null           with 'NULL' or 'NOT NULL'
+     * @param string      $default_type   whether default is CURRENT_TIMESTAMP,
+     *                                    NULL, NONE, USER_DEFINED
+     * @param string      $default_value  default value for USER_DEFINED
+     *                                    default type
+     * @param string      $extra          'AUTO_INCREMENT'
+     * @param string      $comment        field comment
+     * @param array       &$field_primary list of fields for PRIMARY KEY
+     * @param string      $move_to        new position for column
      *
      * @todo    move into class PMA_Column
      * @todo on the interface, some js to clear the default value when the
@@ -427,10 +429,10 @@ class PMA_Table
      *
      * @return string  field specification
      */
-    static function generateFieldSpec($name, $type, $length = '',
+    static function generateFieldSpec($name, $type, $index, $length = '',
         $attribute = '', $collation = '', $null = false,
         $default_type = 'USER_DEFINED', $default_value = '',  $extra = '',
-        $comment = '', $move_to = ''
+        $comment = '', &$field_primary = null, $move_to = ''
     ) {
         $is_timestamp = /*overload*/mb_strpos(
             /*overload*/mb_strtoupper($type),
@@ -618,20 +620,22 @@ class PMA_Table
     /**
      * Generates column specification for ALTER syntax
      *
-     * @param string      $oldcol        old column name
-     * @param string      $newcol        new column name
-     * @param string      $type          type ('INT', 'VARCHAR', 'BIT', ...)
-     * @param string      $length        length ('2', '5,2', '', ...)
-     * @param string      $attribute     attribute
-     * @param string      $collation     collation
-     * @param bool|string $null          with 'NULL' or 'NOT NULL'
-     * @param string      $default_type  whether default is CURRENT_TIMESTAMP,
-     *                                   NULL, NONE, USER_DEFINED
-     * @param string      $default_value default value for USER_DEFINED default
-     *                                   type
-     * @param string      $extra         'AUTO_INCREMENT'
-     * @param string      $comment       field comment
-     * @param string      $move_to       new position for column
+     * @param string      $oldcol         old column name
+     * @param string      $newcol         new column name
+     * @param string      $type           type ('INT', 'VARCHAR', 'BIT', ...)
+     * @param string      $length         length ('2', '5,2', '', ...)
+     * @param string      $attribute      attribute
+     * @param string      $collation      collation
+     * @param bool|string $null           with 'NULL' or 'NOT NULL'
+     * @param string      $default_type   whether default is CURRENT_TIMESTAMP,
+     *                                    NULL, NONE, USER_DEFINED
+     * @param string      $default_value  default value for USER_DEFINED default
+     *                                    type
+     * @param string      $extra          'AUTO_INCREMENT'
+     * @param string      $comment        field comment
+     * @param array       &$field_primary list of fields for PRIMARY KEY
+     * @param string      $index          index
+     * @param string      $move_to        new position for column
      *
      * @see PMA_Table::generateFieldSpec()
      *
@@ -639,13 +643,13 @@ class PMA_Table
      */
     static public function generateAlter($oldcol, $newcol, $type, $length,
         $attribute, $collation, $null, $default_type, $default_value,
-        $extra, $comment, $move_to
+        $extra, $comment, &$field_primary, $index, $move_to
     ) {
         return PMA_Util::backquote($oldcol) . ' '
             . PMA_Table::generateFieldSpec(
-                $newcol, $type, $length, $attribute,
+                $newcol, $type, $index, $length, $attribute,
                 $collation, $null, $default_type, $default_value, $extra,
-                $comment, $move_to
+                $comment, $field_primary, $move_to
             );
     } // end function
 
@@ -970,56 +974,33 @@ class PMA_Table
 
             // add indexes to the table
             if (!empty($GLOBALS['sql_indexes'])) {
+                $parsed_sql =  PMA_SQP_parse($GLOBALS['sql_indexes']);
+                $i = 0;
 
-                $index_queries = array();
-                $sql_indexes = $GLOBALS['sql_indexes'];
-                $GLOBALS['sql_indexes'] = '';
-
-                $parsed_sql = PMA_SQP_parse($sql_indexes);
-                $cnt = $parsed_sql['len'] - 1;
-                $k = 0;
-
-                for ($j = 0; $j < $cnt; $j++) {
-                    if ($parsed_sql[$j]['type'] == 'punct_queryend') {
-                        $index_queries[] = substr(
-                            $sql_indexes, $k, $parsed_sql[$j]['pos'] - $k
-                        );
-                        $k = $parsed_sql[$j]['pos'];
-                    }
+                while ($parsed_sql[$i]['type'] != $table_delimiter) {
+                    $i++;
                 }
 
-                foreach ($index_queries as $index_query) {
+                $parsed_sql[$i]['data'] = $target;
 
-                    $parsed_sql = PMA_SQP_parse($index_query);
-                    $i = 0;
+                $cnt = $parsed_sql['len'] - 1;
 
-                    while ($parsed_sql[$i]['type'] != $table_delimiter) {
-                        $i++;
-                    }
-
-                    $parsed_sql[$i]['data'] = $target;
-
-                    $cnt = $parsed_sql['len'] - 1;
-
-                    for ($j = $i; $j < $cnt; $j++) {
-                        $dataUpper = /*overload*/mb_strtoupper($parsed_sql[$j]['data']);
-                        if ($parsed_sql[$j]['type'] == 'alpha_reservedWord'
-                            && $dataUpper == 'CONSTRAINT'
-                        ) {
-                            if ($parsed_sql[$j+1]['type'] == $table_delimiter) {
-                                $parsed_sql[$j+1]['data'] = '';
-                            }
+                for ($j = $i; $j < $cnt; $j++) {
+                    $dataUpper = /*overload*/mb_strtoupper($parsed_sql[$j]['data']);
+                    if ($parsed_sql[$j]['type'] == 'alpha_reservedWord'
+                        && $dataUpper == 'CONSTRAINT'
+                    ) {
+                        if ($parsed_sql[$j+1]['type'] == $table_delimiter) {
+                            $parsed_sql[$j+1]['data'] = '';
                         }
                     }
-
-                    $sql_index = PMA_SQP_format($parsed_sql, 'query_only');
-                    if ($mode == 'one_table' || $mode == 'db_copy') {
-                        $GLOBALS['dbi']->query($sql_index);
-                    }
-
-                    $GLOBALS['sql_indexes'] .= $sql_index;
                 }
-
+                $GLOBALS['sql_indexes'] = PMA_SQP_format(
+                    $parsed_sql, 'query_only'
+                );
+                if ($mode == 'one_table' || $mode == 'db_copy') {
+                    $GLOBALS['dbi']->query($GLOBALS['sql_indexes']);
+                }
                 $GLOBALS['sql_query'] .= "\n" . $GLOBALS['sql_indexes'];
                 if ($mode == 'one_table' || $mode == 'db_copy') {
                     unset($GLOBALS['sql_indexes']);
@@ -1148,19 +1129,10 @@ class PMA_Table
                             )
                             . '\''
                             . ($GLOBALS['cfgRelation']['mimework']
-                                ? ',\''
-                                . PMA_Util::sqlAddSlashes(
-                                    $comments_copy_row['comment']
-                                ) . '\','
-                                . '\'' . PMA_Util::sqlAddSlashes(
-                                    $comments_copy_row['mimetype']
-                                ) . '\','
-                                . '\'' . PMA_Util::sqlAddSlashes(
-                                    $comments_copy_row['transformation']
-                                ) . '\','
-                                . '\'' . PMA_Util::sqlAddSlashes(
-                                    $comments_copy_row['transformation_options']
-                                ) . '\''
+                                ? ',\'' . PMA_Util::sqlAddSlashes($comments_copy_row['comment']) . '\','
+                                    . '\'' . PMA_Util::sqlAddSlashes($comments_copy_row['mimetype']) . '\','
+                                    . '\'' . PMA_Util::sqlAddSlashes($comments_copy_row['transformation']) . '\','
+                                    . '\'' . PMA_Util::sqlAddSlashes($comments_copy_row['transformation_options']) . '\''
                                 : '')
                             . ')';
                         PMA_queryAsControlUser($new_comment_query);
@@ -1488,18 +1460,17 @@ class PMA_Table
      * returns an array with all columns
      *
      * @param bool $backquoted whether to quote name with backticks ``
-     * @param bool $fullName   whether to include full name of the table as a prefix
      *
      * @return array
      */
-    public function getColumns($backquoted = true, $fullName = true)
+    public function getColumns($backquoted = true)
     {
         $sql = 'SHOW COLUMNS FROM ' . $this->getFullName(true);
         $indexed = $GLOBALS['dbi']->fetchResult($sql, 'Field', 'Field');
 
         $return = array();
         foreach ($indexed as $column) {
-            $return[] = ($fullName ? $this->getFullName($backquoted) . '.' : '')
+            $return[] = $this->getFullName($backquoted) . '.'
                 . ($backquoted ? PMA_Util::backquote($column) : $column);
         }
 

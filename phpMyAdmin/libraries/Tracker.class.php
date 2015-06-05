@@ -277,17 +277,16 @@ class PMA_Tracker
 
 
     /**
-     * Removes all tracking data for a table or a version of a table
+     * Removes all tracking data for a table
      *
      * @param string $dbname    name of database
      * @param string $tablename name of table
-     * @param string $version   version
      *
      * @static
      *
      * @return int result of version insertion
      */
-    static public function deleteTracking($dbname, $tablename, $version = '')
+    static public function deleteTracking($dbname, $tablename)
     {
         $sql_query = "/*NOTRACK*/\n"
             . "DELETE FROM " . self::_getTrackingTable()
@@ -295,10 +294,6 @@ class PMA_Tracker
             . PMA_Util::sqlAddSlashes($dbname) . "'"
             . " AND `table_name` = '"
             . PMA_Util::sqlAddSlashes($tablename) . "'";
-        if ($version) {
-            $sql_query .= " AND `version` = '"
-                . PMA_Util::sqlAddSlashes($version) . "'";
-        }
         $result = PMA_queryAsControlUser($sql_query);
 
         return $result;
@@ -956,7 +951,7 @@ class PMA_Tracker
                 . PMA_Util::sqlAddSlashes($result['tablename']) . "' " .
                 " AND `version` = '" . PMA_Util::sqlAddSlashes($version) . "' ";
 
-                PMA_queryAsControlUser($sql_query);
+                $result = PMA_queryAsControlUser($sql_query);
             }
         }
     }

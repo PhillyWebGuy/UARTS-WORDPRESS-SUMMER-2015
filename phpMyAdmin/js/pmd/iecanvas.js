@@ -4,7 +4,7 @@
  */
 
 function isCanvasSupported() {
-    var el = document.createElement("canvas");
+    var el = document.getElementById("canvas");
     return !!(el.getContext && el.getContext("2d"));
 }
 

@@ -101,16 +101,14 @@ class ImportSql extends ImportPlugin
      */
     private $_stringFunctions = array(
         self::READ_MB_FALSE => array(
-            'substr'     => 'substr',
-            'strlen'     => 'strlen',
-            'strpos'     => 'strpos',
-            'strtoupper' => 'strtoupper',
+            'substr' => 'substr',
+            'strlen' => 'strlen',
+            'strpos' => 'strpos',
         ),
         self::READ_MB_TRUE => array(
-            'substr'     => 'mb_substr',
-            'strlen'     => 'mb_strlen',
-            'strpos'     => 'mb_strpos',
-            'strtoupper' => 'mb_strtoupper',
+            'substr' => 'mb_substr',
+            'strlen' => 'mb_strlen',
+            'strpos' => 'mb_strpos',
         ),
     );
 
@@ -368,8 +366,7 @@ class ImportSql extends ImportPlugin
             }
 
             //If DELIMITER is found.
-            $specialCharsUpper = $this->_stringFctToUse['strtoupper']($specialChars);
-            if ($specialCharsUpper === $this->_delimiterKeyword) {
+            if ($specialChars === $this->_delimiterKeyword) {
                 $this->_isInDelimiter =  true;
                 $this->_delimiterPosition = $this->_firstSearchChar
                     + $this->_stringFctToUse['strlen']($specialChars);
@@ -468,18 +465,16 @@ class ImportSql extends ImportPlugin
             );
         }
 
-        if (! $timeout_passed) {
-            //Commit any possible data in buffers
-            PMA_importRunQuery(
-                $this->_stringFctToUse['substr'](
-                    $this->_data,
-                    $this->_queryBeginPosition
-                ), //Query to execute
+        //Commit any possible data in buffers
+        PMA_importRunQuery(
+            $this->_stringFctToUse['substr'](
                 $this->_data,
-                false,
-                $sql_data
-            );
-        }
+                $this->_queryBeginPosition
+            ), //Query to execute
+            $this->_data,
+            false,
+            $sql_data
+        );
         PMA_importRunQuery('', '', false, $sql_data);
     }
 

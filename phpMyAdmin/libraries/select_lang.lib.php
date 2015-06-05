@@ -259,8 +259,6 @@ function PMA_langDetails($lang)
         return array('en|english', 'en', '');
     case 'en_GB':
         return array('en[_-]gb|english (United Kingdom)', 'en-gb', '');
-    case 'eo':
-        return array('eo|esperanto', 'eo', 'Esperanto');
     case 'es':
         return array('es|spanish', 'es', 'Espa&ntilde;ol');
     case 'et':
@@ -273,8 +271,6 @@ function PMA_langDetails($lang)
         return array('fi|finnish', 'fi', 'Suomi');
     case 'fr':
         return array('fr|french', 'fr', 'Fran&ccedil;ais');
-    case 'fy':
-        return array('fy|frisian', 'fy', 'Frysk');
     case 'gl':
         return array('gl|galician', 'gl', 'Galego');
     case 'he':
@@ -313,8 +309,6 @@ function PMA_langDetails($lang)
         return array('ksh|colognian', 'ksh', 'Kölsch');
     case 'ky':
         return array('ky|kyrgyz', 'ky', 'Кыргызча');
-    case 'li':
-        return array('li|limburgish', 'li', 'Lèmbörgs');
     case 'lt':
         return array('lt|lithuanian', 'lt', 'Lietuvi&#371;');
     case 'lv':

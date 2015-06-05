@@ -45,6 +45,8 @@ abstract class Bool2TextTransformationsPlugin extends TransformationsPlugin
      */
     public function applyTransformation($buffer, $options = array(), $meta = '')
     {
+        error_log('apply');
+
         $options = $this->getOptions($options, array('T', 'F'));
 
         if ($buffer == '0') {

@@ -20,7 +20,6 @@
 require_once 'libraries/common.inc.php';
 require_once 'libraries/index.lib.php';
 require_once 'libraries/tbl_relation.lib.php';
-require_once 'libraries/structure.lib.php';
 
 $response = PMA_Response::getInstance();
 
@@ -125,11 +124,6 @@ if ($cfgRelation['displaywork']) {
 }
 
 
-// display secondary level tabs if necessary
-$engine = PMA_Table::sGetStatusInfo($db, $table, 'ENGINE');
-$response->addHTML(PMA_getStructureSecondaryTabs($engine));
-$response->addHTML('<div id="structure_content">');
-
 /**
  * Dialog
  */
@@ -150,7 +144,5 @@ if (PMA_Util::isForeignKeySupported($tbl_storage_engine)) {
     $html_output .= PMA_getHtmlForDisplayIndexes();
 }
 // Render HTML output
-$response->addHTML($html_output);
-
-$response->addHTML('</div>');
+PMA_Response::getInstance()->addHTML($html_output);
 ?>

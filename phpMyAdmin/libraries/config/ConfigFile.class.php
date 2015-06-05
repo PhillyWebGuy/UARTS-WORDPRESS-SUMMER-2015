@@ -501,8 +501,7 @@ class ConfigFile
     {
         $c = $_SESSION[$this->_id];
         foreach ($this->_cfgUpdateReadMapping as $map_to => $map_from) {
-            // if the key $c exists in $map_to
-            if (PMA_arrayRead($map_to, $c) !== null) {
+            if (PMA_arrayKeyExists($map_to, $c)) {
                 PMA_arrayWrite($map_to, $c, PMA_arrayRead($map_from, $c));
                 PMA_arrayRemove($map_from, $c);
             }

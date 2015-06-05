@@ -12,6 +12,7 @@ if (!defined('PHPMYADMIN')) {
 /**
  * Function to get form parameters
  *
+ * @param string $server     server
  * @param string $db         database
  * @param string $table      table
  * @param string $action     action
@@ -21,9 +22,10 @@ if (!defined('PHPMYADMIN')) {
  * @return array $form_params form parameters
  */
 function PMA_getFormsParameters(
-    $db, $table, $action, $num_fields, $selected
+    $server, $db, $table, $action, $num_fields, $selected
 ) {
     $form_params = array(
+        'server' => $server,
         'db' => $db
     );
 
@@ -66,43 +68,22 @@ function PMA_getFormsParameters(
  */
 function PMA_getHtmlForTableConfigurations()
 {
-    $html  = '<table>';
-    $html .= '<tr class="vtop">'
+    $html = '<table>'
+        . '<tr class="vtop">'
         . '<th>' . __('Table comments:') . '</th>'
         . '<td width="25">&nbsp;</td>'
-        . '<th>' . __('Collation:') . '</th>'
-        . '<td width="25">&nbsp;</td>'
-        . '<th>'
-        . __('Storage Engine:')
+        . '<th>' . __('Storage Engine:')
         . PMA_Util::showMySQLDocu('Storage_engines')
         . '</th>'
         . '<td width="25">&nbsp;</td>'
-        . '<th>'
-        . __('Connection:')
-        . PMA_Util::showMySQLDocu('federated-create-connection')
-        . '</th>'
-        . '</tr>';
-
-    $commentLength = PMA_MYSQL_INT_VERSION >= 50503 ? 2048 : 60;
-    $html .= '<tr>'
-        . '<td><input type="text" name="comment"'
-        . ' size="40" maxlength="' . $commentLength . '"'
+        . '<th>' . __('Collation:') . '</th>'
+        . '</tr>'
+        . '<tr><td><input type="text" name="comment" size="40" maxlength="80"'
         . ' value="'
         . (isset($_REQUEST['comment'])
         ? htmlspecialchars($_REQUEST['comment'])
         : '')
         . '" class="textfield" />'
-        . '</td>'
-        . '<td width="25">&nbsp;</td>'
-        . '<td>'
-        . PMA_generateCharsetDropdownBox(
-            PMA_CSDROPDOWN_COLLATION, 'tbl_collation', null,
-            (isset($_REQUEST['tbl_collation'])
-                ? $_REQUEST['tbl_collation']
-                : null
-            ),
-            false
-        )
         . '</td>'
         . '<td width="25">&nbsp;</td>'
         . '<td>'
@@ -115,12 +96,15 @@ function PMA_getHtmlForTableConfigurations()
         )
         . '</td>'
         . '<td width="25">&nbsp;</td>'
-        . '<td><input type="text" name="connection" size="40"'
-        . ' value="' . (isset($_REQUEST['connection'])
-            ? htmlspecialchars($_REQUEST['connection'])
-            : '') . '"'
-        . ' placeholder="scheme://user_name[:password]@host_name[:port_num]/db_name/tbl_name"'
-        . ' class="textfield" required="required" />'
+        . '<td>'
+        . PMA_generateCharsetDropdownBox(
+            PMA_CSDROPDOWN_COLLATION, 'tbl_collation', null,
+            (isset($_REQUEST['tbl_collation'])
+                ? $_REQUEST['tbl_collation']
+                : null
+            ),
+            false
+        )
         . '</td>'
         . '</tr>';
 
@@ -240,30 +224,6 @@ function PMA_getHtmlForTableFieldDefinitions($header_cells, $content_cells)
 }
 
 /**
- * Function to get html for the hidden fields containing index creation info
- *
- * @param string $index_type the index type
- *
- * @return string
- */
-function PMA_getHtmlForHiddenIndexInfo($index_type)
-{
-    $html = '<input type="hidden" name="' . $index_type . '" value="';
-    if (! empty($_REQUEST[$index_type])) {
-        // happens when an index has been set on a column,
-        // and a column is added to the table creation dialog
-        //
-        // this contains a JSON-encoded string
-        $html .= htmlspecialchars($_REQUEST[$index_type]);
-    } else {
-        $html .= '[]';
-    }
-    $html .= '">';
-
-    return $html;
-}
-
-/**
  * Function to get html for the create table or field add view
  *
  * @param string $action        action
@@ -280,11 +240,10 @@ function PMA_getHtmlForTableCreateOrAddField($action, $form_params, $content_cel
         . ($action == 'tbl_create.php' ? 'create_table' : 'append_fields')
         . '_form ajax lock-page">';
     $html .= PMA_URL_getHiddenInputs($form_params);
-
-    $html .= PMA_getHtmlForHiddenIndexInfo('primary_indexes');
-    $html .= PMA_getHtmlForHiddenIndexInfo('unique_indexes');
-    $html .= PMA_getHtmlForHiddenIndexInfo('indexes');
-    $html .= PMA_getHtmlForHiddenIndexInfo('fulltext_indexes');
+    $html .= '<input type="hidden" name="primary_indexes" value="[]">';
+    $html .= '<input type="hidden" name="unique_indexes" value="[]">';
+    $html .= '<input type="hidden" name="indexes" value="[]">';
+    $html .= '<input type="hidden" name="fulltext_indexes" value="[]">';
 
     if ($action == 'tbl_create.php') {
         $html .= PMA_getHtmlForTableNameAndNoOfColumns();
@@ -358,7 +317,7 @@ function PMA_getHeaderCells($is_backup, $columnMeta, $mimework, $db, $table)
     if ($mimework && $GLOBALS['cfg']['BrowseMIME']) {
         $header_cells[] = __('MIME type');
         $header_link = '<a href="transformation_overview.php'
-            . PMA_URL_getCommon()
+            . PMA_URL_getCommon(array('db' => $db, 'table' => $table))
             . '#%s" title="' . __(
                 'List of available transformations and their options'
             )
@@ -1215,6 +1174,8 @@ function PMA_getHtmlForColumnDefault($columnNumber, $ci, $ci_offset, $type_upper
  * @param array|null $extracted_columnspec             extracted column spec
  * @param string     $submit_attribute                 submit attribute
  * @param array|null $analyzed_sql                     analyzed sql
+ * @param string     $submit_default_current_timestamp submit default current
+ *                                                     timestamp
  * @param array      $comments_map                     comments map
  * @param array|null $fields_meta                      fields map
  * @param bool       $is_backup                        is backup
@@ -1228,7 +1189,7 @@ function PMA_getHtmlForColumnDefault($columnNumber, $ci, $ci_offset, $type_upper
 function PMA_getHtmlForColumnAttributes($columnNumber, $columnMeta, $type_upper,
     $length_values_input_size, $length, $default_current_timestamp,
     $extracted_columnspec, $submit_attribute, $analyzed_sql,
-    $comments_map, $fields_meta, $is_backup,
+    $submit_default_current_timestamp, $comments_map, $fields_meta, $is_backup,
     $move_columns, $cfgRelation, $available_mime, $mime_map
 ) {
     // Cell index: If certain fields get left out, the counter shouldn't change.

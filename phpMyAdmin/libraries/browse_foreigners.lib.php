@@ -215,11 +215,7 @@ function PMA_getHtmlForColumnElement($cssClass, $isSelected, $keyname,
     $description, $title
 ) {
     $keyname = htmlspecialchars($keyname);
-    $output = '<td';
-    if (! empty($cssClass)) {
-        $output .= ' ' . $cssClass;
-    }
-    $output .= '>'
+    $output = '<td ' . $cssClass . '>'
         . ($isSelected ? '<strong>' : '')
         . '<a class="foreign_value" data-key="' . $keyname . '" '
         . 'href="#" title="' . __('Use this value')

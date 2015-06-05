@@ -72,8 +72,8 @@ class SchemaEps extends SchemaPlugin
         $leaf->setText(__('Orientation'));
         $leaf->setValues(
             array(
-                'L' => __('Landscape'),
-                'P' => __('Portrait'),
+                'L' => 'Landscape',
+                'P' => 'Portrait',
             )
         );
         $specificOptions->addProperty($leaf);

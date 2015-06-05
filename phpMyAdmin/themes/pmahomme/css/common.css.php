@@ -531,6 +531,23 @@ fieldset .formelement {
     white-space: nowrap;
 }
 
+@media all and (min-width: 1600px) {
+    fieldset .formelement {
+        clear: none;
+    }
+    #foreign_keys.relationalTable td:first-child + td {
+        width: 25%;
+    }
+    #foreign_keys.relationalTable td:first-child + td select {
+        width: auto;
+        margin-right: 1%;
+    }
+    #foreign_keys.relationalTable {
+        width: 100%;
+    }
+
+}
+
 /* revert for Gecko */
 fieldset div[class=formelement] {
     white-space: normal;
@@ -564,30 +581,36 @@ table tr.even {
     text-align: <?php echo $left; ?>;
 }
 
-/* marked table rows */
-td.marked:not(.nomarker),
-table tr.marked:not(.nomarker) td,
-table tr.marked:not(.nomarker) th,
-table tr.marked:not(.nomarker) {
+<?php if ($GLOBALS['cfg']['BrowseMarkerEnable']) { ?>
+    /* marked table rows */
+    td.marked,
+    table tr.marked td,
+    table tr.marked th,
+    table tr.marked {
     <?php echo $_SESSION['PMA_Theme']->getCssGradient('ced6df', 'b6c6d7'); ?>
     color: <?php echo $GLOBALS['cfg']['BrowseMarkerColor']; ?>;
-}
+    }
+    <?php
+} ?>
 
-/* hovered items */
-.odd:not(.nopointer):hover,
-.even:not(.nopointer):hover,
-.hover:not(.nopointer) {
+<?php if ($GLOBALS['cfg']['BrowsePointerEnable']) { ?>
+    /* hovered items */
+    .odd:hover,
+    .even:hover,
+    .hover {
     <?php echo $_SESSION['PMA_Theme']->getCssGradient('ced6df', 'b6c6d7'); ?>
     color: <?php echo $GLOBALS['cfg']['BrowsePointerColor']; ?>;
-}
+    }
 
-/* hovered table rows */
-table tr.odd:not(.nopointer):hover th,
-table tr.even:not(.nopointer):hover th,
-table tr.hover:not(.nopointer) th {
+    /* hovered table rows */
+    table tr.odd:hover th,
+    table tr.even:hover th,
+    table tr.hover th {
     <?php echo $_SESSION['PMA_Theme']->getCssGradient('ced6df', 'b6c6d7'); ?>
     color: <?php echo $GLOBALS['cfg']['BrowsePointerColor']; ?>;
-}
+    }
+    <?php
+} ?>
 
 /**
  * marks table rows/cells if the db field is in a where condition
@@ -1063,9 +1086,6 @@ div#dataDisplay select {
 div#dataDisplay th {
     line-height: 2em;
 }
-table#tableFieldsId {
-    width: 100%;
-}
 
 /* Calendar */
 table.calendar {
@@ -1144,7 +1164,7 @@ div#tablestatistics table {
     position: fixed;
     padding: .25em .25em .2em;
     top: 0;
-    z-index: 99;
+    z-index: 900;
     background: #888;
 }
 
@@ -1258,7 +1278,7 @@ div#tablestatistics table {
     float: <?php echo $left; ?>;
 }
 
-#fieldset_user_global_rights>legend input {
+#fieldset_user_global_rights legend input {
     margin-<?php echo $left; ?>: 2em;
 }
 /* end user privileges */
@@ -1275,6 +1295,12 @@ div#tablestatistics table {
 h3#serverstatusqueries span {
     font-size: 60%;
     display: inline;
+}
+
+img.sortableIcon {
+    float: <?php echo $right; ?>;
+    background-repeat: no-repeat;
+    margin: 0;
 }
 
 .buttonlinks {
@@ -1427,10 +1453,9 @@ div#queryAnalyzerDialog table.queryNums {
 
 /* server variables */
 #serverVariables {
-    table-layout: fixed;
-    width: 100%;
+    min-width: 30em;
 }
-#serverVariables .var-row > td {
+#serverVariables .var-row > div {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1442,17 +1467,15 @@ div#queryAnalyzerDialog table.queryNums {
     <?php echo $_SESSION['PMA_Theme']->getCssGradient('ffffff', 'cccccc'); ?>
     font-weight: bold;
 }
-#serverVariables .var-header {
+#serverVariables .var-header .var-value {
     text-align: <?php echo $left; ?>;
 }
 #serverVariables .var-row {
     padding: 0.5em;
     min-height: 18px;
 }
-#serverVariables .var-action {
-    width: 120px;
-}
 #serverVariables .var-name {
+    width: 45%;
     float: <?php echo $left; ?>;
     font-weight: bold;
 }
@@ -1799,7 +1822,7 @@ div.sqlvalidate {
     overflow: auto;
 }
 
-.result_query div.sqlOuter {
+#result_query div.sqlOuter {
     background: <?php echo $GLOBALS['cfg']['BgOne']; ?>;
     padding: 1em;
 }
@@ -2150,7 +2173,6 @@ input#input_import_file {
 #index_frm .index_info input,
 #index_frm .index_info select {
     width: 14em;
-    margin: 0;
     box-sizing: border-box;
     -ms-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -2217,6 +2239,10 @@ table#index_columns select {
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
     border-radius: 2px;
+}
+
+.margin#change_column_dialog {
+    margin: 0 .5em;
 }
 
 /* config forms */
@@ -2502,10 +2528,6 @@ fieldset .disabled-field td {
 .toggleButton .container {
     position: absolute;
 }
-.toggleButton .container td {
-    background-image: none;
-    background: none;
-}
 .toggleButton .toggleOn {
     color: #fff;
     padding: 0 1em;
@@ -2614,10 +2636,6 @@ fieldset .disabled-field td {
 .pma_table tbody td span {
     display: block;
     overflow: hidden;
-}
-
-.pma_table tbody td span code span {
-    display: inline;
 }
 
 .pma_table th.draggable.right span {
@@ -2838,7 +2856,6 @@ fieldset .disabled-field td {
 .cEdit .edit_box {
     overflow: hidden;
     padding: 0;
-    margin: 0;
 }
 
 .cEdit .edit_box_posting {
@@ -2849,6 +2866,11 @@ fieldset .disabled-field td {
 .cEdit .edit_area_loading {
     background: #FFF url(<?php echo $_SESSION['PMA_Theme']->getImgPath('ajax_clock_small.gif');?>) no-repeat center;
     height: 10em;
+}
+
+.cEdit .edit_area_right {
+    position: absolute;
+    right: 0;
 }
 
 .cEdit .goto_link {
@@ -2923,7 +2945,7 @@ div#page_content form#db_search_form.ajax fieldset {
     margin-top: -0.3em;
 }
 
-div#page_content div#tableslistcontainer, div#page_content div.notice, div#page_content div.result_query {
+div#page_content div#tableslistcontainer, div#page_content div.notice, div#page_content div#result_query {
     margin-top: 1em;
 }
 

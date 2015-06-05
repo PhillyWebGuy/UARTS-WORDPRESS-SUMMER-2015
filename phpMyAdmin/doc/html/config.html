@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -6,15 +8,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Configuration &mdash; phpMyAdmin 4.4.9 documentation</title>
+    <title>Configuration &mdash; phpMyAdmin 4.3.13.1 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '4.4.9',
+        URL_ROOT:    '',
+        VERSION:     '4.3.13.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +26,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="copyright" title="Copyright" href="copyright.html" />
-    <link rel="top" title="phpMyAdmin 4.4.9 documentation" href="index.html" />
+    <link rel="top" title="phpMyAdmin 4.3.13.1 documentation" href="index.html" />
     <link rel="next" title="User Guide" href="user.html" />
     <link rel="prev" title="Installation" href="setup.html" /> 
   </head>
@@ -41,7 +43,7 @@
         <li class="right" >
           <a href="setup.html" title="Installation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">phpMyAdmin 4.4.9 documentation</a> &raquo;</li> 
+        <li><a href="index.html">phpMyAdmin 4.3.13.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -106,7 +108,7 @@ an error message if phpMyAdmin is having trouble auto–detecting the correct
 value. If you get an error that this must be set or if the autodetect code
 fails to detect your path, please post a bug report on our bug tracker so
 we can improve the code.</p>
-<div class="admonition seealso">
+<div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="faq.html#faq1-40"><em>1.40 When accessing phpMyAdmin via an Apache reverse proxy, cookie login does not work.</em></a></p>
 </div>
@@ -149,24 +151,6 @@ stop this message from appearing.</p>
 </tbody>
 </table>
 <p>A warning is displayed on the main page if Suhosin is detected.</p>
-<p>You can set this parameter to <tt class="docutils literal"><span class="pre">true</span></tt> to stop this message from appearing.</p>
-</dd></dl>
-
-<dl class="option">
-<dt id="cfg_LoginCookieValidityDisableWarning">
-<tt class="descname">$cfg['LoginCookieValidityDisableWarning']</tt><a class="headerlink" href="#cfg_LoginCookieValidityDisableWarning" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">boolean</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body">false</td>
-</tr>
-</tbody>
-</table>
-<p>A warning is displayed on the main page if the PHP parameter
-session.gc_maxlifetime is lower than cookie validity configured in phpMyAdmin.</p>
 <p>You can set this parameter to <tt class="docutils literal"><span class="pre">true</span></tt> to stop this message from appearing.</p>
 </dd></dl>
 
@@ -582,10 +566,9 @@ holds the configuration storage.</p>
 </table>
 <p>This special account is used for 2 distinct purposes: to make possible all
 relational features (see <span class="target" id="index-9"></span><a class="reference internal" href="#cfg_Servers_pmadb"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['pmadb']</span></tt></a>).</p>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 2.2.5: </span>those were called <tt class="docutils literal"><span class="pre">stduser</span></tt> and <tt class="docutils literal"><span class="pre">stdpass</span></tt></p>
-</div>
-<div class="admonition seealso">
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 2.2.5: </span>those were called <tt class="docutils literal"><span class="pre">stduser</span></tt> and <tt class="docutils literal"><span class="pre">stdpass</span></tt></p>
+<div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="setup.html#setup"><em>Installation</em></a>, <a class="reference internal" href="setup.html#authentication-modes"><em>Using authentication modes</em></a>, <a class="reference internal" href="setup.html#linked-tables"><em>phpMyAdmin configuration storage</em></a></p>
 </div>
@@ -616,7 +599,7 @@ valid MySQL user via HTTP-Auth.</li>
 <li>&#8216;signon&#8217; authentication mode (<tt class="docutils literal"><span class="pre">$auth_type&nbsp;=&nbsp;'signon'</span></tt>) allows you to
 log in from prepared PHP session data or using supplied PHP script.</li>
 </ul>
-<div class="admonition seealso">
+<div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="setup.html#authentication-modes"><em>Using authentication modes</em></a></p>
 </div>
@@ -742,10 +725,9 @@ will be displayed but <strong>not that all other databases can&#8217;t be used.<
 <div class="highlight-php"><div class="highlight"><pre><span class="nv">$cfg</span><span class="p">[</span><span class="s1">&#39;Servers&#39;</span><span class="p">][</span><span class="nv">$i</span><span class="p">][</span><span class="s1">&#39;only_db&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s1">&#39;db1&#39;</span><span class="p">,</span> <span class="s1">&#39;db2&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 4.0.0: </span>Previous versions permitted to specify the display order of
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 4.0.0: </span>Previous versions permitted to specify the display order of
 the database names via this directive.</p>
-</div>
 </dd></dl>
 
 <dl class="option">
@@ -918,7 +900,7 @@ functionality:</p>
 &#8220;Structure/Relation view/Choose column to display&#8221; to choose the
 column.</li>
 </ul>
-<div class="admonition seealso">
+<div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="faq.html#faqdisplay"><em>6.7 How can I use the &#8220;display column&#8221; feature?</em></a></p>
 </div>
@@ -965,7 +947,7 @@ a <a class="reference internal" href="glossary.html#term-pdf"><em class="xref st
 <span class="target" id="index-21"></span><a class="reference internal" href="#cfg_Servers_table_coords"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['table_coords']</span></tt></a> and
 <span class="target" id="index-22"></span><a class="reference internal" href="#cfg_Servers_pdf_pages"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['pdf_pages']</span></tt></a></li>
 </ul>
-<div class="admonition seealso">
+<div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="faq.html#faqpdf"><em>6.8 How can I produce a PDF schema of my database?</em></a>.</p>
 </div>
@@ -1004,7 +986,7 @@ table is necessary for previous transformations and the new input-oriented
 transformation system to work. phpMyAdmin will upgrade it automatically
 for you by analyzing your current column_info table structure.
 However, if something goes wrong with the auto-upgrade then you can
-use the SQL script found in <tt class="docutils literal"><span class="pre">./sql/upgrade_column_info_4_3_0+.sql</span></tt>
+use the SQL script found in <tt class="docutils literal"><span class="pre">./examples/upgrade_column_info_4_3_0+.sql</span></tt>
 to upgrade it manually.</p>
 <p>To allow the usage of this functionality:</p>
 <ul>
@@ -1025,7 +1007,7 @@ remember that the Variable in <tt class="file docutils literal"><span class="pre
 </div>
 </li>
 <li><p class="first">to update your PRE-4.3.0 Column_info table manually use this
-<tt class="docutils literal"><span class="pre">./sql/upgrade_column_info_4_3_0+.sql</span></tt> SQL script.</p>
+<tt class="docutils literal"><span class="pre">./examples/upgrade_column_info_4_3_0+.sql</span></tt> SQL script.</p>
 </li>
 </ul>
 <div class="admonition note">
@@ -1416,26 +1398,6 @@ delete older rows.</p>
 </dd></dl>
 
 <dl class="option">
-<dt id="cfg_Servers_SessionTimeZone">
-<tt class="descname">$cfg['Servers'][$i]['SessionTimeZone']</tt><a class="headerlink" href="#cfg_Servers_SessionTimeZone" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body"><tt class="docutils literal"><span class="pre">''</span></tt></td>
-</tr>
-</tbody>
-</table>
-<p>Sets the time zone used by phpMyAdmin. Leave blank to use the time zone of your
-database server. Possible values are explained at
-<a class="reference external" href="http://dev.mysql.com/doc/refman/5.7/en/time-zone-support.html">http://dev.mysql.com/doc/refman/5.7/en/time-zone-support.html</a></p>
-<p>This is useful when your database server uses a time zone which is different from the
-time zone you want to use in phpMyAdmin.</p>
-</dd></dl>
-
-<dl class="option">
 <dt id="cfg_Servers_AllowRoot">
 <tt class="descname">$cfg['Servers'][$i]['AllowRoot']</tt><a class="headerlink" href="#cfg_Servers_AllowRoot" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
@@ -1640,7 +1602,7 @@ empty). See <tt class="file docutils literal"><span class="pre">examples/signon-
 <span class="cp">?&gt;</span><span class="x"></span>
 </pre></div>
 </div>
-<div class="admonition seealso">
+<div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="setup.html#auth-signon"><em>Signon authentication mode</em></a></p>
 </div>
@@ -1663,7 +1625,7 @@ empty). See <tt class="file docutils literal"><span class="pre">examples/signon-
 You should use something different than <tt class="docutils literal"><span class="pre">phpMyAdmin</span></tt>, because this
 is session which phpMyAdmin uses internally. Takes effect only if
 <span class="target" id="index-56"></span><a class="reference internal" href="#cfg_Servers_SignonScript"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['SignonScript']</span></tt></a> is not configured.</p>
-<div class="admonition seealso">
+<div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="setup.html#auth-signon"><em>Signon authentication mode</em></a></p>
 </div>
@@ -1685,7 +1647,7 @@ is session which phpMyAdmin uses internally. Takes effect only if
 <p><a class="reference internal" href="glossary.html#term-url"><em class="xref std std-term">URL</em></a> where user will be redirected
 to log in for signon authentication method. Should be absolute
 including protocol.</p>
-<div class="admonition seealso">
+<div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="setup.html#auth-signon"><em>Signon authentication mode</em></a></p>
 </div>
@@ -1915,8 +1877,7 @@ following extensions:</p>
 </tr>
 </tbody>
 </table>
-<p>Whether to force using https while accessing phpMyAdmin. In a reverse
-proxy setup, setting this to <tt class="docutils literal"><span class="pre">true</span></tt> is not supported.</p>
+<p>Whether to force using https while accessing phpMyAdmin.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">In some setups (like separate SSL proxy or load balancer) you might
@@ -2154,12 +2115,11 @@ prompted for this passphrase. There is no maximum length for this secret.</p>
 <p class="last">The configuration is called blowfish_secret for historical reasons as
 Blowfish algorithm was originally used to do the encryption.</p>
 </div>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 3.1.0: </span>Since version 3.1.0 phpMyAdmin can generate this on the fly, but it
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 3.1.0: </span>Since version 3.1.0 phpMyAdmin can generate this on the fly, but it
 makes a bit weaker security as this generated secret is stored in
 session and furthermore it makes impossible to recall user name from
 cookie.</p>
-</div>
 </dd></dl>
 
 <dl class="option">
@@ -2255,29 +2215,9 @@ authentication.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Please use this carefully, as this may allow users access to MySQL servers
-behind the firewall where your <a class="reference internal" href="glossary.html#term-http"><em class="xref std std-term">HTTP</em></a> server is placed.
-See also <span class="target" id="index-62"></span><a class="reference internal" href="#cfg_ArbitraryServerRegexp"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ArbitraryServerRegexp']</span></tt></a>.</p>
+behind the firewall where your <a class="reference internal" href="glossary.html#term-http"><em class="xref std std-term">HTTP</em></a>
+server is placed.</p>
 </div>
-</dd></dl>
-
-<dl class="option">
-<dt id="cfg_ArbitraryServerRegexp">
-<tt class="descname">$cfg['ArbitraryServerRegexp']</tt><a class="headerlink" href="#cfg_ArbitraryServerRegexp" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body"><tt class="docutils literal"><span class="pre">''</span></tt></td>
-</tr>
-</tbody>
-</table>
-<p>Restricts the MySQL servers to which the user can log in when
-<span class="target" id="index-63"></span><a class="reference internal" href="#cfg_AllowArbitraryServer"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['AllowArbitraryServer']</span></tt></a> is enabled by
-matching the <a class="reference internal" href="glossary.html#term-ip"><em class="xref std std-term">IP</em></a> or the hostname of the MySQL server
-to the given regular expression. The regular expression must be enclosed
-with a delimiter character.</p>
 </dd></dl>
 
 <dl class="option">
@@ -2293,7 +2233,7 @@ with a delimiter character.</p>
 </tr>
 </tbody>
 </table>
-<p>The public key for the reCaptcha service that can be obtained from
+<p>The public key for the reCaptcha service that can be obtain from
 <a class="reference external" href="http://www.google.com/recaptcha">http://www.google.com/recaptcha</a>.</p>
 <p>reCaptcha will be then used in <a class="reference internal" href="setup.html#cookie"><em>Cookie authentication mode</em></a>.</p>
 </dd></dl>
@@ -2320,22 +2260,6 @@ with a delimiter character.</p>
 <div class="section" id="navigation-panel-setup">
 <h2>Navigation panel setup<a class="headerlink" href="#navigation-panel-setup" title="Permalink to this headline">¶</a></h2>
 <dl class="option">
-<dt id="cfg_ShowDatabasesNavigationAsTree">
-<tt class="descname">$cfg['ShowDatabasesNavigationAsTree']</tt><a class="headerlink" href="#cfg_ShowDatabasesNavigationAsTree" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">boolean</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body">true</td>
-</tr>
-</tbody>
-</table>
-<p>In the navigation panel, replaces the database tree with a selector</p>
-</dd></dl>
-
-<dl class="option">
 <dt id="cfg_FirstLevelNavigationItems">
 <tt class="descname">$cfg['FirstLevelNavigationItems']</tt><a class="headerlink" href="#cfg_FirstLevelNavigationItems" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
@@ -2344,7 +2268,7 @@ with a delimiter character.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">integer</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body">100</td>
+<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body">25</td>
 </tr>
 </tbody>
 </table>
@@ -2383,7 +2307,7 @@ page of the navigation tree.</p>
 </tbody>
 </table>
 <p>Defines whether to group the databases based on a common prefix
-in their name <span class="target" id="index-64"></span><a class="reference internal" href="#cfg_NavigationTreeDbSeparator"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['NavigationTreeDbSeparator']</span></tt></a>.</p>
+in their name <span class="target" id="index-62"></span><a class="reference internal" href="#cfg_NavigationTreeDbSeparator"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['NavigationTreeDbSeparator']</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="option">
@@ -2477,7 +2401,7 @@ create phpMyAdmin configuration storage in the current database
 or use the existing one, if already present.</p>
 <p>This setting has no effect if the phpMyAdmin configuration storage database
 is properly created and the related configuration directives (such as
-<span class="target" id="index-65"></span><a class="reference internal" href="#cfg_Servers_pmadb"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['pmadb']</span></tt></a> and so on) are configured.</p>
+<span class="target" id="index-63"></span><a class="reference internal" href="#cfg_Servers_pmadb"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['pmadb']</span></tt></a> and so on) are configured.</p>
 </dd></dl>
 
 <dl class="option">
@@ -2647,33 +2571,8 @@ to each table name in the navigation panel. Possible values:</p>
 </dd></dl>
 
 <dl class="option">
-<dt id="cfg_NavigationTreeDefaultTabTable2">
-<tt class="descname">$cfg['NavigationTreeDefaultTabTable2']</tt><a class="headerlink" href="#cfg_NavigationTreeDefaultTabTable2" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body">null</td>
-</tr>
-</tbody>
-</table>
-<p>Defines the tab displayed by default when clicking the second small icon next
-to each table name in the navigation panel. Possible values:</p>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">(empty)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">tbl_structure.php</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">tbl_sql.php</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">tbl_select.php</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">tbl_change.php</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">sql.php</span></tt></li>
-</ul>
-</dd></dl>
-
-<dl class="option">
-<dt id="cfg_NavigationTreeEnableExpansion">
-<tt class="descname">$cfg['NavigationTreeEnableExpansion']</tt><a class="headerlink" href="#cfg_NavigationTreeEnableExpansion" title="Permalink to this definition">¶</a></dt>
+<dt id="cfg_NavigationTreeDisableDatabaseExpansion">
+<tt class="descname">$cfg['NavigationTreeDisableDatabaseExpansion']</tt><a class="headerlink" href="#cfg_NavigationTreeDisableDatabaseExpansion" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -2684,7 +2583,7 @@ to each table name in the navigation panel. Possible values:</p>
 </tr>
 </tbody>
 </table>
-<p>Whether to offer the possibility of tree expansion in the navigation panel.</p>
+<p>Whether or not to disable the possibility of databases expansion in the navigation panel</p>
 </dd></dl>
 
 </div>
@@ -2724,7 +2623,7 @@ for Berkeley DB tables.</p>
 </table>
 <p>Defines whether to display detailed server information on main page.
 You can additionally hide more information by using
-<span class="target" id="index-66"></span><a class="reference internal" href="#cfg_Servers_verbose"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['verbose']</span></tt></a>.</p>
+<span class="target" id="index-64"></span><a class="reference internal" href="#cfg_Servers_verbose"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['verbose']</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="option">
@@ -2877,42 +2776,6 @@ or <tt class="docutils literal"><span class="pre">'both'</span></tt>.</p>
 </dd></dl>
 
 <dl class="option">
-<dt id="cfg_ActionLinksMode">
-<tt class="descname">$cfg['ActionLinksMode']</tt><a class="headerlink" href="#cfg_ActionLinksMode" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body"><tt class="docutils literal"><span class="pre">'both'</span></tt></td>
-</tr>
-</tbody>
-</table>
-<p>If set to <tt class="docutils literal"><span class="pre">icons</span></tt>, will display icons instead of text for db and table
-properties links (like <em class="guilabel">Browse</em>, <em class="guilabel">Select</em>,
-<em class="guilabel">Insert</em>, ...). Can be set to <tt class="docutils literal"><span class="pre">'both'</span></tt>
-if you want icons AND text. When set to <tt class="docutils literal"><span class="pre">text</span></tt>, will only show text.</p>
-</dd></dl>
-
-<dl class="option">
-<dt id="cfg_RowActionType">
-<tt class="descname">$cfg['RowActionType']</tt><a class="headerlink" href="#cfg_RowActionType" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body"><tt class="docutils literal"><span class="pre">'both'</span></tt></td>
-</tr>
-</tbody>
-</table>
-<p>Whether to display icons or text or both icons and text in table row action
-segment. Value can be either of <tt class="docutils literal"><span class="pre">'icons'</span></tt>, <tt class="docutils literal"><span class="pre">'text'</span></tt> or <tt class="docutils literal"><span class="pre">'both'</span></tt>.</p>
-</dd></dl>
-
-<dl class="option">
 <dt id="cfg_ShowAll">
 <tt class="descname">$cfg['ShowAll']</tt><a class="headerlink" href="#cfg_ShowAll" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
@@ -2981,24 +2844,7 @@ TIMESTAMP, ascending order else- by default.</p>
 </tbody>
 </table>
 <p>Defines which action (<tt class="docutils literal"><span class="pre">double-click</span></tt> or <tt class="docutils literal"><span class="pre">click</span></tt>) triggers grid
-editing. Can be deactivated with the <tt class="docutils literal"><span class="pre">disabled</span></tt> value.</p>
-</dd></dl>
-
-<dl class="option">
-<dt id="cfg_RelationalDisplay">
-<tt class="descname">$cfg['RelationalDisplay']</tt><a class="headerlink" href="#cfg_RelationalDisplay" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body"><tt class="docutils literal"><span class="pre">'K'</span></tt></td>
-</tr>
-</tbody>
-</table>
-<p>Defines the initial behavior for Options &gt; Relational. <tt class="docutils literal"><span class="pre">K</span></tt>, which
-is the default, displays the key while <tt class="docutils literal"><span class="pre">D</span></tt> shows the display column.</p>
+editing. Can be deactived with the <tt class="docutils literal"><span class="pre">disabled</span></tt> value.</p>
 </dd></dl>
 
 <dl class="option">
@@ -3111,7 +2957,7 @@ edit/insert mode. The user can toggle this setting from the interface.</p>
 </table>
 <p>If there are fewer items than this in the set of foreign keys, then a
 drop-down box of foreign keys is presented, in the style described by
-the <span class="target" id="index-67"></span><a class="reference internal" href="#cfg_ForeignKeyDropdownOrder"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ForeignKeyDropdownOrder']</span></tt></a> setting.</p>
+the <span class="target" id="index-65"></span><a class="reference internal" href="#cfg_ForeignKeyDropdownOrder"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ForeignKeyDropdownOrder']</span></tt></a> setting.</p>
 </dd></dl>
 
 <dl class="option">
@@ -3282,6 +3128,25 @@ identify what they mean.</p>
 </dd></dl>
 
 <dl class="option">
+<dt id="cfg_ActionLinksMode">
+<tt class="descname">$cfg['ActionLinksMode']</tt><a class="headerlink" href="#cfg_ActionLinksMode" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body"><tt class="docutils literal"><span class="pre">'both'</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>If set to <tt class="docutils literal"><span class="pre">icons</span></tt>, will display icons instead of text for db and table
+properties links (like <em class="guilabel">Browse</em>, <em class="guilabel">Select</em>,
+<em class="guilabel">Insert</em>, ...). Can be set to <tt class="docutils literal"><span class="pre">'both'</span></tt>
+if you want icons AND text. When set to <tt class="docutils literal"><span class="pre">text</span></tt>, will only show text.</p>
+</dd></dl>
+
+<dl class="option">
 <dt id="cfg_PropertiesNumColumns">
 <tt class="descname">$cfg['PropertiesNumColumns']</tt><a class="headerlink" href="#cfg_PropertiesNumColumns" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
@@ -3401,7 +3266,7 @@ values:</p>
 </tbody>
 </table>
 <p>Default page size to use when creating PDF pages. Valid values are any
-listed in <span class="target" id="index-68"></span><a class="reference internal" href="#cfg_PDFPageSizes"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['PDFPageSizes']</span></tt></a>.</p>
+listed in <span class="target" id="index-66"></span><a class="reference internal" href="#cfg_PDFPageSizes"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['PDFPageSizes']</span></tt></a>.</p>
 </dd></dl>
 
 </div>
@@ -3505,7 +3370,7 @@ recode)</li>
 <p>Enabled charset conversion activates a pull-down menu in the Export
 and Import pages, to choose the character set when exporting a file.
 The default value in this menu comes from
-<span class="target" id="index-69"></span><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Export']['charset']</span></tt> and <span class="target" id="index-70"></span><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Import']['charset']</span></tt>.</p>
+<span class="target" id="index-67"></span><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Export']['charset']</span></tt> and <span class="target" id="index-68"></span><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Import']['charset']</span></tt>.</p>
 </dd></dl>
 
 <dl class="option">
@@ -3585,7 +3450,7 @@ buffering.</p>
 </tbody>
 </table>
 <p>Lists proxies and HTTP headers which are trusted for
-<span class="target" id="index-71"></span><a class="reference internal" href="#cfg_Servers_AllowDeny_order"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['AllowDeny']['order']</span></tt></a>. This list is by
+<span class="target" id="index-69"></span><a class="reference internal" href="#cfg_Servers_AllowDeny_order"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['AllowDeny']['order']</span></tt></a>. This list is by
 default empty, you need to fill in some trusted proxy servers if you
 want to use rules for IP addresses behind proxy.</p>
 <p>The following example specifies that phpMyAdmin should trust a
@@ -3594,7 +3459,7 @@ HTTP_X_FORWARDED_FOR (<tt class="docutils literal"><span class="pre">X</span> <s
 <div class="highlight-php"><div class="highlight"><pre><span class="nv">$cfg</span><span class="p">[</span><span class="s1">&#39;TrustedProxies&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s1">&#39;1.2.3.4&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;HTTP_X_FORWARDED_FOR&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>The <span class="target" id="index-72"></span><a class="reference internal" href="#cfg_Servers_AllowDeny_rules"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['AllowDeny']['rules']</span></tt></a> directive uses the
+<p>The <span class="target" id="index-70"></span><a class="reference internal" href="#cfg_Servers_AllowDeny_rules"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['AllowDeny']['rules']</span></tt></a> directive uses the
 client&#8217;s IP address as usual.</p>
 </dd></dl>
 
@@ -3680,9 +3545,8 @@ would be normally not allowed by Content Security Policy.</p>
 <div class="highlight-php"><div class="highlight"><pre><span class="nv">$cfg</span><span class="p">[</span><span class="s1">&#39;CSPAllow&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;example.com example.net&#39;</span><span class="p">;</span>
 </pre></div>
 </div>
-<div class="versionadded">
-<p><span class="versionmodified">New in version 4.0.4.</span></p>
-</div>
+<p class="versionadded">
+<span class="versionmodified">New in version 4.0.4.</span></p>
 </dd></dl>
 
 <dl class="option">
@@ -3883,8 +3747,6 @@ of multiple maintenance operation.</p>
 </tr>
 </tbody>
 </table>
-<p>The background color used when hovering over a row in the Browse panel.
-See <tt class="file docutils literal"><span class="pre">themes/themename/layout.inc.php</span></tt>.</p>
 </dd></dl>
 
 <dl class="option">
@@ -3900,9 +3762,6 @@ See <tt class="file docutils literal"><span class="pre">themes/themename/layout.
 </tr>
 </tbody>
 </table>
-<p>The text color used when hovering over a row in the Browse panel.
-Used when <span class="target" id="index-73"></span><a class="reference internal" href="#cfg_BrowsePointerEnable"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['BrowsePointerEnable']</span></tt></a> is true.
-See <tt class="file docutils literal"><span class="pre">themes/themename/layout.inc.php</span></tt>.</p>
 </dd></dl>
 
 <dl class="option">
@@ -3918,10 +3777,6 @@ See <tt class="file docutils literal"><span class="pre">themes/themename/layout.
 </tr>
 </tbody>
 </table>
-<p>The background color used to highlight a row selected by checkbox in the Browse panel or
-when a column is selected.
-Used when <span class="target" id="index-74"></span><a class="reference internal" href="#cfg_BrowsePointerEnable"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['BrowsePointerEnable']</span></tt></a> is true.
-See <tt class="file docutils literal"><span class="pre">themes/themename/layout.inc.php</span></tt>.</p>
 </dd></dl>
 
 <dl class="option">
@@ -3937,9 +3792,11 @@ See <tt class="file docutils literal"><span class="pre">themes/themename/layout.
 </tr>
 </tbody>
 </table>
-<p>The color used when you visually mark a row or column in the Browse panel.
-Rows can be marked by clicking the checkbox to the left of the row and columns can be
-marked by clicking the column&#8217;s header (outside of the header text).
+<p>The colors (HTML) uses for the pointer and the marker in browse mode.
+The former feature highlights the row over which your mouse is passing
+and the latter lets you visually mark/unmark rows by clicking on the
+corresponding checkbox. Highlighting / marking a column is done by
+hovering over / clicking the column&#8217;s header (outside of the text).
 See <tt class="file docutils literal"><span class="pre">themes/themename/layout.inc.php</span></tt>.</p>
 </dd></dl>
 
@@ -3993,8 +3850,7 @@ This one is used in textarea. See <tt class="file docutils literal"><span class=
 </tr>
 </tbody>
 </table>
-<p>When set to true, hovering over an item in the navigation panel causes that item to be marked
-(the background is highlighted).</p>
+<p>A value of <tt class="docutils literal"><span class="pre">true</span></tt> activates the navi pointer.</p>
 </dd></dl>
 
 <dl class="option">
@@ -4010,8 +3866,7 @@ This one is used in textarea. See <tt class="file docutils literal"><span class=
 </tr>
 </tbody>
 </table>
-<p>When set to true, hovering over a row in the Browse page causes that row to be marked (the background
-is highlighted).</p>
+<p>Whether to activate the browse pointer or not.</p>
 </dd></dl>
 
 <dl class="option">
@@ -4027,8 +3882,7 @@ is highlighted).</p>
 </tr>
 </tbody>
 </table>
-<p>When set to true, a data row is marked (the background is highlighted) when the row is selected
-with the checkbox.</p>
+<p>Whether to activate the browse marker or not.</p>
 </dd></dl>
 
 <dl class="option">
@@ -4063,7 +3917,29 @@ view. Can be turned off by a toggle button on the browse page.</p>
 </table>
 <p>Defines the place where table row links (Edit, Copy, Delete) would be
 put when tables contents are displayed (you may have them displayed at
-the left side, right side, both sides or nowhere).</p>
+the left side, right side, both sides or nowhere). &#8220;left&#8221; and &#8220;right&#8221;
+are parsed as &#8220;top&#8221; and &#8220;bottom&#8221; with vertical display mode.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cfg_DefaultDisplay">
+<tt class="descname">$cfg['DefaultDisplay']</tt><a class="headerlink" href="#cfg_DefaultDisplay" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body"><tt class="docutils literal"><span class="pre">'horizontal'</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>There are 3 display modes: horizontal, horizontalflipped and vertical.
+Define which one is displayed by default. The first mode displays each
+row on a horizontal line, the second rotates the headers by 90
+degrees, so you can use descriptive headers even though columns only
+contain small values and still print them out. The vertical mode sorts
+each row on a vertical lineup.</p>
 </dd></dl>
 
 <dl class="option">
@@ -4098,6 +3974,28 @@ the left side, right side, both sides or nowhere).</p>
 <p>This defines the default sort order for the tables, having a primary key,
 when there is no sort order defines externally.
 Acceptable values : [&#8216;NONE&#8217;, &#8216;ASC&#8217;, &#8216;DESC&#8217;]</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cfg_HeaderFlipType">
+<tt class="descname">$cfg['HeaderFlipType']</tt><a class="headerlink" href="#cfg_HeaderFlipType" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body"><tt class="docutils literal"><span class="pre">'auto'</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>The HeaderFlipType can be set to &#8216;auto&#8217;, &#8216;css&#8217; or &#8216;fake&#8217;. When using
+&#8216;css&#8217; the rotation of the header for horizontalflipped is done via
+CSS. The CSS transformation currently works only in Internet
+Explorer.If set to &#8216;fake&#8217; PHP does the transformation for you, but of
+course this does not look as good as CSS. The &#8216;auto&#8217; option enables
+CSS transformation when browser supports it and use PHP based one
+otherwise.</p>
 </dd></dl>
 
 <dl class="option">
@@ -4260,7 +4158,7 @@ emphasized (*2) for <a class="reference internal" href="glossary.html#term-sql">
 textareas and (*1.25) for <a class="reference internal" href="glossary.html#term-sql"><em class="xref std std-term">SQL</em></a>
 textareas inside the query window.</p>
 <p>The Char* values are used for CHAR
-and VARCHAR editing (if configured via <span class="target" id="index-75"></span><a class="reference internal" href="#cfg_CharEditing"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['CharEditing']</span></tt></a>).</p>
+and VARCHAR editing (if configured via <span class="target" id="index-71"></span><a class="reference internal" href="#cfg_CharEditing"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['CharEditing']</span></tt></a>).</p>
 </dd></dl>
 
 <dl class="option">
@@ -4457,12 +4355,12 @@ user required to access this directory is the one who runs the webserver.
 If you have root privileges, simply make this user owner of this directory
 and make it accessible only by it:</p>
 <div class="highlight-sh"><div class="highlight"><pre>chown www-data:www-data tmp
-chmod <span class="m">700</span> tmp
+chmod 700 tmp
 </pre></div>
 </div>
 <p>If you cannot change owner of the directory, you can achieve a similar
 setup using <a class="reference internal" href="glossary.html#term-acl"><em class="xref std std-term">ACL</em></a>:</p>
-<div class="highlight-sh"><div class="highlight"><pre>chmod <span class="m">700</span> tmp
+<div class="highlight-sh"><div class="highlight"><pre>chmod 700 tmp
 setfacl -m <span class="s2">&quot;g:www-data:rwx&quot;</span> tmp
 setfacl -d -m <span class="s2">&quot;g:www-data:rwx&quot;</span> tmp
 </pre></div>
@@ -4475,6 +4373,23 @@ reading and writing data in this directory.</p>
 </div>
 <div class="section" id="various-display-setting">
 <h2>Various display setting<a class="headerlink" href="#various-display-setting" title="Permalink to this headline">¶</a></h2>
+<dl class="option">
+<dt id="cfg_ShowDisplayDirection">
+<tt class="descname">$cfg['ShowDisplayDirection']</tt><a class="headerlink" href="#cfg_ShowDisplayDirection" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">boolean</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body">false</td>
+</tr>
+</tbody>
+</table>
+<p>Defines whether or not type display direction option is shown when
+browsing a table.</p>
+</dd></dl>
+
 <dl class="option">
 <dt id="cfg_RepeatCells">
 <tt class="descname">$cfg['RepeatCells']</tt><a class="headerlink" href="#cfg_RepeatCells" title="Permalink to this definition">¶</a></dt>
@@ -4519,9 +4434,9 @@ reading and writing data in this directory.</p>
 </tr>
 </tbody>
 </table>
-<p>If <span class="target" id="index-76"></span><a class="reference internal" href="#cfg_QueryHistoryDB"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['QueryHistoryDB']</span></tt></a> is set to <tt class="docutils literal"><span class="pre">true</span></tt>, all your
+<p>If <span class="target" id="index-72"></span><a class="reference internal" href="#cfg_QueryHistoryDB"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['QueryHistoryDB']</span></tt></a> is set to <tt class="docutils literal"><span class="pre">true</span></tt>, all your
 Queries are logged to a table, which has to be created by you (see
-<span class="target" id="index-77"></span><a class="reference internal" href="#cfg_Servers_history"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['history']</span></tt></a>). If set to false, all your
+<span class="target" id="index-73"></span><a class="reference internal" href="#cfg_Servers_history"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['history']</span></tt></a>). If set to false, all your
 queries will be appended to the form, but only as long as your window is
 opened they remain saved.</p>
 <p>When using the JavaScript based query window, it will always get updated
@@ -4535,9 +4450,9 @@ you first have to look in. The checkbox will get automatically checked
 whenever you change the contents of the textarea. Please uncheck the button
 whenever you definitely want the query window to get updated even though
 you have made alterations.</p>
-<p>If <span class="target" id="index-78"></span><a class="reference internal" href="#cfg_QueryHistoryDB"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['QueryHistoryDB']</span></tt></a> is set to <tt class="docutils literal"><span class="pre">true</span></tt> you can
+<p>If <span class="target" id="index-74"></span><a class="reference internal" href="#cfg_QueryHistoryDB"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['QueryHistoryDB']</span></tt></a> is set to <tt class="docutils literal"><span class="pre">true</span></tt> you can
 specify the amount of saved history items using
-<span class="target" id="index-79"></span><a class="reference internal" href="#cfg_QueryHistoryMax"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['QueryHistoryMax']</span></tt></a>.</p>
+<span class="target" id="index-75"></span><a class="reference internal" href="#cfg_QueryHistoryMax"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['QueryHistoryMax']</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="option">
@@ -4779,7 +4694,7 @@ containing all the themes.</p>
 </tr>
 </tbody>
 </table>
-<p>The default theme (a subdirectory under <span class="target" id="index-80"></span><a class="reference internal" href="#cfg_ThemePath"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ThemePath']</span></tt></a>).</p>
+<p>The default theme (a subdirectory under <span class="target" id="index-76"></span><a class="reference internal" href="#cfg_ThemePath"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ThemePath']</span></tt></a>).</p>
 </dd></dl>
 
 <dl class="option">
@@ -4911,6 +4826,23 @@ displayed in the bottom of main page (right frame).</p>
 This is used for &lt;<a class="reference external" href="http://demo.phpmyadmin.net/">http://demo.phpmyadmin.net/</a>&gt;.</p>
 </dd></dl>
 
+<dl class="option">
+<dt id="cfg_RowActionType">
+<tt class="descname">$cfg['RowActionType']</tt><a class="headerlink" href="#cfg_RowActionType" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Default value:</th><td class="field-body"><tt class="docutils literal"><span class="pre">'both'</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Whether to display icons or text or both icons and text in table row action
+segment. Value can be either of <tt class="docutils literal"><span class="pre">'icons'</span></tt>, <tt class="docutils literal"><span class="pre">'text'</span></tt> or <tt class="docutils literal"><span class="pre">'both'</span></tt>.</p>
+</dd></dl>
+
 </div>
 </div>
 
@@ -4992,12 +4924,12 @@ This is used for &lt;<a class="reference external" href="http://demo.phpmyadmin.
         <li class="right" >
           <a href="setup.html" title="Installation"
              >previous</a> |</li>
-        <li><a href="index.html">phpMyAdmin 4.4.9 documentation</a> &raquo;</li> 
+        <li><a href="index.html">phpMyAdmin 4.3.13.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; <a href="copyright.html">Copyright</a> 2012 - 2014, The phpMyAdmin devel team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

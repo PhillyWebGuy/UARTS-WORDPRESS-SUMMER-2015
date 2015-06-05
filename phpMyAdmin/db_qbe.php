@@ -87,7 +87,7 @@ if (isset($_REQUEST['submit_sql']) && ! empty($sql_query)) {
 
         PMA_executeQueryAndSendQueryResponse(
             $analyzed_sql_results, false, $_REQUEST['db'], null, false, null, null,
-            false, null, null, null, $goto, $pmaThemeImage, null, null, null,
+            false, null, null, null, null, $goto, $pmaThemeImage, null, null, null,
             $sql_query, null, null
         );
     }
@@ -108,24 +108,26 @@ unset($message_to_display);
 // create new qbe search instance
 $db_qbe = new PMA_DBQbe($GLOBALS['db'], $savedSearchList, $savedSearch);
 
-$url = 'db_designer.php' . PMA_URL_getCommon(
-    array_merge(
-        $url_params,
-        array('query' => 1)
-    )
-);
-$response->addHTML(
-    PMA_Message::notice(
-        sprintf(
-            __('Switch to %svisual builder%s'),
-            '<a href="' . $url . '">',
-            '</a>'
-        )
-    )
-);
-
 /**
  * Displays the Query by example form
  */
-$response->addHTML($db_qbe->getSelectionForm());
+if ($cfgRelation['pdfwork']) {
+    $url = 'db_designer.php' . PMA_URL_getCommon(
+        array_merge(
+            $url_params,
+            array('query' => 1)
+        )
+    );
+    $response->addHTML(
+        PMA_Message::notice(
+            sprintf(
+                __('Switch to %svisual builder%s'),
+                '<a href="' . $url . '">',
+                '</a>'
+            )
+        )
+    );
+}
+
+$response->addHTML($db_qbe->getSelectionForm($cfgRelation));
 ?>

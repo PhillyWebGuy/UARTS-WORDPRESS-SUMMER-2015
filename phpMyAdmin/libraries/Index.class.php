@@ -47,7 +47,7 @@ class PMA_Index
     private $_columns = array();
 
     /**
-     * The index method used (BTREE, HASH, RTREE).
+     * The index method used (BTREE, SPATIAL, FULLTEXT, HASH, RTREE).
      *
      * @var string
      */
@@ -86,20 +86,6 @@ class PMA_Index
      * @var string
      */
     private $_packed = null;
-
-    /**
-     * Block size for the index
-     *
-     * @var int
-     */
-    private $_key_block_size = null;
-
-    /**
-     * Parser option for the index
-     *
-     * @var string
-     */
-    private $_parser = null;
 
     /**
      * Constructor
@@ -304,28 +290,16 @@ class PMA_Index
         if (isset($params['Packed'])) {
             $this->_packed = $params['Packed'];
         }
-        if (isset($params['Index_choice'])) {
-            $this->_choice = $params['Index_choice'];
+        if ('PRIMARY' == $this->_name) {
+            $this->_choice = 'PRIMARY';
+        } elseif ('FULLTEXT' == $this->_type) {
+            $this->_choice = 'FULLTEXT';
+        } elseif ('SPATIAL' == $this->_type) {
+            $this->_choice = 'SPATIAL';
+        } elseif ('0' == $this->_non_unique) {
+            $this->_choice = 'UNIQUE';
         } else {
-            if ('PRIMARY' == $this->_name) {
-                $this->_choice = 'PRIMARY';
-            } elseif ('FULLTEXT' == $this->_type) {
-                $this->_choice = 'FULLTEXT';
-                $this->_type = '';
-            } elseif ('SPATIAL' == $this->_type) {
-                $this->_choice = 'SPATIAL';
-                $this->_type = '';
-            } elseif ('0' == $this->_non_unique) {
-                $this->_choice = 'UNIQUE';
-            } else {
-                $this->_choice = 'INDEX';
-            }
-        }
-        if (isset($params['Key_block_size'])) {
-            $this->_key_block_size = $params['Key_block_size'];
-        }
-        if (isset($params['Parser'])) {
-            $this->_parser = $params['Parser'];
+            $this->_choice = 'INDEX';
         }
     }
 
@@ -360,26 +334,6 @@ class PMA_Index
     }
 
     /**
-     * Return the key block size
-     *
-     * @return number
-     */
-    public function getKeyBlockSize()
-    {
-        return $this->_key_block_size;
-    }
-
-    /**
-     * Return the parser
-     *
-     * @return string
-     */
-    public function getParser()
-    {
-        return $this->_parser;
-    }
-
-    /**
      * Returns concatenated remarks and comment
      *
      * @return string concatenated remarks and comment
@@ -396,7 +350,7 @@ class PMA_Index
     }
 
     /**
-     * Returns index type (BTREE, HASH, RTREE)
+     * Returns index type ((BTREE, SPATIAL, FULLTEXT, HASH, RTREE)
      *
      * @return string index type
      */
@@ -432,30 +386,13 @@ class PMA_Index
     }
 
     /**
-     * Returns a lit of all index types
-     *
-     * @return string[] index types
-     */
-    static public function getIndexTypes()
-    {
-        return array(
-            'BTREE',
-            'HASH'
-        );
-    }
-
-    /**
      * Returns HTML for the index choice selector
-     *
-     * @param boolean $edit_table whether this is table editing
      *
      * @return string HTML for the index choice selector
      */
-    public function generateIndexChoiceSelector($edit_table)
+    public function generateIndexSelector()
     {
-        $html_options = '<select name="index[Index_choice]"'
-            . ' id="select_index_choice" '
-            . ($edit_table ? 'disabled="disabled"' : '') . '>';
+        $html_options = '';
 
         foreach (PMA_Index::getIndexChoices() as $each_index_choice) {
             if ($each_index_choice === 'PRIMARY'
@@ -471,27 +408,8 @@ class PMA_Index
                  : '')
                  . '>' . $each_index_choice . '</option>' . "\n";
         }
-        $html_options .= '</select>';
 
         return $html_options;
-    }
-
-    /**
-     * Returns HTML for the index type selector
-     *
-     * @return string HTML for the index type selector
-     */
-    public function generateIndexTypeSelector()
-    {
-        $types = array("" => "--");
-        foreach (PMA_Index::getIndexTypes() as $type) {
-            $types[$type] = $type;
-        }
-
-        return PMA_Util::getDropdown(
-            "index[Index_type]", $types,
-            $this->_type, "select_index_type"
-        );
     }
 
     /**
@@ -719,14 +637,9 @@ class PMA_Index
                     . htmlspecialchars($index->getName())
                     . '</td>';
             }
-            $r .= '<td ' . $row_span . '>';
-            $type = $index->getType();
-            if (! empty($type)) {
-                $r .= htmlspecialchars($type);
-            } else {
-                $r .= htmlspecialchars($index->getChoice());
-            }
-            $r .= '</td>';
+            $r .= '<td ' . $row_span . '>'
+                . htmlspecialchars($index->getType())
+                . '</td>';
             $r .= '<td ' . $row_span . '>' . $index->isUnique(true) . '</td>';
             $r .= '<td ' . $row_span . '>' . $index->isPacked(true) . '</td>';
 
@@ -778,7 +691,7 @@ class PMA_Index
         $data = array(
             // 'Non_unique'    => $this->_non_unique,
             'Packed'        => $this->_packed,
-            'Index_choice'    => $this->_choice,
+            'Index_type'    => $this->_type,
         );
 
         foreach ($this->_columns as $column) {

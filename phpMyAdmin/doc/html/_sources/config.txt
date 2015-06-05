@@ -85,16 +85,6 @@ Basic settings
 
     You can set this parameter to ``true`` to stop this message from appearing.
 
-.. config:option:: $cfg['LoginCookieValidityDisableWarning']
-
-    :type: boolean
-    :default: false
-
-    A warning is displayed on the main page if the PHP parameter
-    session.gc_maxlifetime is lower than cookie validity configured in phpMyAdmin.
-
-    You can set this parameter to ``true`` to stop this message from appearing.
-
 .. config:option:: $cfg['ServerLibraryDifference_DisableWarning']
 
     :type: boolean
@@ -618,7 +608,7 @@ Server connection settings
     transformation system to work. phpMyAdmin will upgrade it automatically
     for you by analyzing your current column\_info table structure.
     However, if something goes wrong with the auto-upgrade then you can
-    use the SQL script found in ``./sql/upgrade_column_info_4_3_0+.sql``
+    use the SQL script found in ``./examples/upgrade_column_info_4_3_0+.sql``
     to upgrade it manually.
 
     To allow the usage of this functionality:
@@ -638,7 +628,7 @@ Server connection settings
            ADD `transformation` VARCHAR( 255 ) NOT NULL,
            ADD `transformation_options` VARCHAR( 255 ) NOT NULL;
     * to update your PRE-4.3.0 Column\_info table manually use this
-      ``./sql/upgrade_column_info_4_3_0+.sql`` SQL script.
+      ``./examples/upgrade_column_info_4_3_0+.sql`` SQL script.
 
     .. note::
 
@@ -903,18 +893,6 @@ Server connection settings
     (referring to tables which no longer exist). We only keep this number of newest
     rows in :config:option:`$cfg['Servers'][$i]['table_uiprefs']` and automatically
     delete older rows.
-
-.. config:option:: $cfg['Servers'][$i]['SessionTimeZone']
-
-    :type: string
-    :default: ``''``
-
-    Sets the time zone used by phpMyAdmin. Leave blank to use the time zone of your
-    database server. Possible values are explained at
-    http://dev.mysql.com/doc/refman/5.7/en/time-zone-support.html
-
-    This is useful when your database server uses a time zone which is different from the
-    time zone you want to use in phpMyAdmin.
 
 .. config:option:: $cfg['Servers'][$i]['AllowRoot']
 
@@ -1190,8 +1168,7 @@ Generic settings
     :type: boolean
     :default: false
 
-    Whether to force using https while accessing phpMyAdmin. In a reverse
-    proxy setup, setting this to ``true`` is not supported.
+    Whether to force using https while accessing phpMyAdmin.
 
     .. note::
 
@@ -1385,26 +1362,15 @@ Cookie authentication options
     .. note::
 
         Please use this carefully, as this may allow users access to MySQL servers
-        behind the firewall where your :term:`HTTP` server is placed.
-        See also :config:option:`$cfg['ArbitraryServerRegexp']`.
-
-.. config:option:: $cfg['ArbitraryServerRegexp']
-
-    :type: string
-    :default: ``''``
-
-    Restricts the MySQL servers to which the user can log in when
-    :config:option:`$cfg['AllowArbitraryServer']` is enabled by
-    matching the :term:`IP` or the hostname of the MySQL server
-    to the given regular expression. The regular expression must be enclosed
-    with a delimiter character.
+        behind the firewall where your :term:`HTTP`
+        server is placed.
 
 .. config:option:: $cfg['CaptchaLoginPublicKey']
 
     :type: string
     :default: ``''``
 
-    The public key for the reCaptcha service that can be obtained from
+    The public key for the reCaptcha service that can be obtain from
     http://www.google.com/recaptcha.
 
     reCaptcha will be then used in :ref:`cookie`.
@@ -1422,17 +1388,10 @@ Cookie authentication options
 Navigation panel setup
 ----------------------
 
-.. config:option:: $cfg['ShowDatabasesNavigationAsTree']
-
-    :type: boolean
-    :default: true
-
-    In the navigation panel, replaces the database tree with a selector
-
 .. config:option:: $cfg['FirstLevelNavigationItems']
 
     :type: integer
-    :default: 100
+    :default: 25
 
     The number of first level databases that can be displayed on each page
     of navigation tree.
@@ -1589,27 +1548,12 @@ Navigation panel setup
     * ``tbl_change.php``
     * ``sql.php``
 
-.. config:option:: $cfg['NavigationTreeDefaultTabTable2']
-
-    :type: string
-    :default: null
-
-    Defines the tab displayed by default when clicking the second small icon next
-    to each table name in the navigation panel. Possible values:
-
-    * ``(empty)``
-    * ``tbl_structure.php``
-    * ``tbl_sql.php``
-    * ``tbl_select.php``
-    * ``tbl_change.php``
-    * ``sql.php``
-
-.. config:option:: $cfg['NavigationTreeEnableExpansion']
+.. config:option:: $cfg['NavigationTreeDisableDatabaseExpansion']
 
     :type: boolean
     :default: false
 
-    Whether to offer the possibility of tree expansion in the navigation panel.
+    Whether or not to disable the possibility of databases expansion in the navigation panel
 
 Main panel
 ----------
@@ -1711,24 +1655,6 @@ Browse mode
     Defines whether the table navigation links contain ``'icons'``, ``'text'``
     or ``'both'``.
 
-.. config:option:: $cfg['ActionLinksMode']
-
-    :type: string
-    :default: ``'both'``
-
-    If set to ``icons``, will display icons instead of text for db and table
-    properties links (like :guilabel:`Browse`, :guilabel:`Select`,
-    :guilabel:`Insert`, ...). Can be set to ``'both'``
-    if you want icons AND text. When set to ``text``, will only show text.
-
-.. config:option:: $cfg['RowActionType']
-
-    :type: string
-    :default: ``'both'``
-
-    Whether to display icons or text or both icons and text in table row action
-    segment. Value can be either of ``'icons'``, ``'text'`` or ``'both'``.
-
 .. config:option:: $cfg['ShowAll']
 
     :type: boolean
@@ -1763,15 +1689,7 @@ Browse mode
     :default: ``'double-click'``
 
     Defines which action (``double-click`` or ``click``) triggers grid
-    editing. Can be deactivated with the ``disabled`` value.
-
-.. config:option:: $cfg['RelationalDisplay']
-
-    :type: string
-    :default: ``'K'``
-
-    Defines the initial behavior for Options > Relational. ``K``, which
-    is the default, displays the key while ``D`` shows the display column.
+    editing. Can be deactived with the ``disabled`` value.
 
 .. config:option:: $cfg['SaveCellsAtOnce']
 
@@ -1916,6 +1834,16 @@ Tabs display settings
     :default: ``'both'``
 
     Defines whether the menu tabs contain ``'icons'``, ``'text'`` or ``'both'``.
+
+.. config:option:: $cfg['ActionLinksMode']
+
+    :type: string
+    :default: ``'both'``
+
+    If set to ``icons``, will display icons instead of text for db and table
+    properties links (like :guilabel:`Browse`, :guilabel:`Select`,
+    :guilabel:`Insert`, ...). Can be set to ``'both'``
+    if you want icons AND text. When set to ``text``, will only show text.
 
 .. config:option:: $cfg['PropertiesNumColumns']
 
@@ -2244,36 +2172,26 @@ Theme settings
     :type: string [CSS color]
     :default:
 
-    The background color used when hovering over a row in the Browse panel.
-    See :file:`themes/themename/layout.inc.php`.
-
 .. config:option:: $cfg['BrowsePointerColor']
 
     :type: string [CSS color]
     :default:
-
-    The text color used when hovering over a row in the Browse panel.
-    Used when :config:option:`$cfg['BrowsePointerEnable']` is true.
-    See :file:`themes/themename/layout.inc.php`.
 
 .. config:option:: $cfg['BrowseMarkerBackground']
 
     :type: string [CSS color]
     :default:
 
-    The background color used to highlight a row selected by checkbox in the Browse panel or
-    when a column is selected.
-    Used when :config:option:`$cfg['BrowsePointerEnable']` is true.
-    See :file:`themes/themename/layout.inc.php`.
-
 .. config:option:: $cfg['BrowseMarkerColor']
 
     :type: string [CSS color]
     :default:
 
-    The color used when you visually mark a row or column in the Browse panel.
-    Rows can be marked by clicking the checkbox to the left of the row and columns can be
-    marked by clicking the column's header (outside of the header text).
+    The colors (HTML) uses for the pointer and the marker in browse mode.
+    The former feature highlights the row over which your mouse is passing
+    and the latter lets you visually mark/unmark rows by clicking on the
+    corresponding checkbox. Highlighting / marking a column is done by
+    hovering over / clicking the column's header (outside of the text).
     See :file:`themes/themename/layout.inc.php`.
 
 .. config:option:: $cfg['FontFamily']
@@ -2300,24 +2218,21 @@ Design customization
     :type: boolean
     :default: true
 
-    When set to true, hovering over an item in the navigation panel causes that item to be marked
-    (the background is highlighted).
+    A value of ``true`` activates the navi pointer.
 
 .. config:option:: $cfg['BrowsePointerEnable']
 
     :type: boolean
     :default: true
 
-    When set to true, hovering over a row in the Browse page causes that row to be marked (the background
-    is highlighted).
+    Whether to activate the browse pointer or not.
 
 .. config:option:: $cfg['BrowseMarkerEnable']
 
     :type: boolean
     :default: true
 
-    When set to true, a data row is marked (the background is highlighted) when the row is selected
-    with the checkbox.
+    Whether to activate the browse marker or not.
 
 .. config:option:: $cfg['LimitChars']
 
@@ -2334,7 +2249,20 @@ Design customization
 
     Defines the place where table row links (Edit, Copy, Delete) would be
     put when tables contents are displayed (you may have them displayed at
-    the left side, right side, both sides or nowhere).
+    the left side, right side, both sides or nowhere). "left" and "right"
+    are parsed as "top" and "bottom" with vertical display mode.
+
+.. config:option:: $cfg['DefaultDisplay']
+
+    :type: string
+    :default: ``'horizontal'``
+
+    There are 3 display modes: horizontal, horizontalflipped and vertical.
+    Define which one is displayed by default. The first mode displays each
+    row on a horizontal line, the second rotates the headers by 90
+    degrees, so you can use descriptive headers even though columns only
+    contain small values and still print them out. The vertical mode sorts
+    each row on a vertical lineup.
 
 .. config:option:: $cfg['RememberSorting']
 
@@ -2351,6 +2279,19 @@ Design customization
     This defines the default sort order for the tables, having a primary key,
     when there is no sort order defines externally.
     Acceptable values : ['NONE', 'ASC', 'DESC']
+
+.. config:option:: $cfg['HeaderFlipType']
+
+    :type: string
+    :default: ``'auto'``
+
+    The HeaderFlipType can be set to 'auto', 'css' or 'fake'. When using
+    'css' the rotation of the header for horizontalflipped is done via
+    CSS. The CSS transformation currently works only in Internet
+    Explorer.If set to 'fake' PHP does the transformation for you, but of
+    course this does not look as good as CSS. The 'auto' option enables
+    CSS transformation when browser supports it and use PHP based one
+    otherwise.
 
 .. config:option:: $cfg['ShowBrowseComments']
 
@@ -2575,6 +2516,14 @@ Web server upload/save/import directories
 Various display setting
 -----------------------
 
+.. config:option:: $cfg['ShowDisplayDirection']
+
+    :type: boolean
+    :default: false
+
+    Defines whether or not type display direction option is shown when
+    browsing a table.
+
 .. config:option:: $cfg['RepeatCells']
 
     :type: integer
@@ -2793,3 +2742,10 @@ Developer
     Enable to let server present itself as demo server.
     This is used for <http://demo.phpmyadmin.net/>.
 
+.. config:option:: $cfg['RowActionType']
+
+    :type: string
+    :default: ``'both'``
+
+    Whether to display icons or text or both icons and text in table row action
+    segment. Value can be either of ``'icons'``, ``'text'`` or ``'both'``.

@@ -132,6 +132,14 @@ abstract class TableStats
     }
 
     /**
+     * Displays an error on missing coordinates
+     *
+     * @return void
+     * @abstract
+     */
+    protected abstract function showMissingCoordinatesError();
+
+    /**
      * Loads the table's display field
      *
      * @return void

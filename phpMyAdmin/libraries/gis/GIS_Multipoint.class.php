@@ -50,7 +50,7 @@ class PMA_GIS_Multipoint extends PMA_GIS_Geometry
      *
      * @param string $spatial spatial data of a row
      *
-     * @return array an array containing the min, max values for x and y coordinates
+     * @return array an array containing the min, max values for x and y cordinates
      * @access public
      */
     public function scaleRow($spatial)
@@ -337,7 +337,7 @@ class PMA_GIS_Multipoint extends PMA_GIS_Geometry
     }
 
     /**
-     * Overridden to make sure that only the points having valid values
+     * Overidden to make sure that only the points having valid values
      * for x and y coordinates are added.
      *
      * @param array  $points_arr x and y coordinates for each point

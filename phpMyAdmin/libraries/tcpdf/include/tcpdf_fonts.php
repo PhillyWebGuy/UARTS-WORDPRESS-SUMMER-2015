@@ -1,9 +1,9 @@
 <?php
 //============================================================+
 // File name   : tcpdf_fonts.php
-// Version     : 1.1.0
+// Version     : 1.0.011
 // Begin       : 2008-01-01
-// Last Update : 2014-12-10
+// Last Update : 2014-01-03
 // Author      : Nicola Asuni - Tecnick.com LTD - www.tecnick.com - info@tecnick.com
 // License     : GNU-LGPL v3 (http://www.gnu.org/copyleft/lesser.html)
 // -------------------------------------------------------------------
@@ -42,7 +42,7 @@
  * @class TCPDF_FONTS
  * Font methods for TCPDF library.
  * @package com.tecnick.tcpdf
- * @version 1.1.0
+ * @version 1.0.011
  * @author Nicola Asuni - info@tecnick.com
  */
 class TCPDF_FONTS {
@@ -186,7 +186,7 @@ class TCPDF_FONTS {
 			$data .= $encrypted;
 			// store compressed font
 			$fmetric['file'] .= '.z';
-			$fp = TCPDF_STATIC::fopenLocal($outpath.$fmetric['file'], 'wb');
+			$fp = fopen($outpath.$fmetric['file'], 'wb');
 			fwrite($fp, gzcompress($data));
 			fclose($fp);
 			// get font info
@@ -354,11 +354,6 @@ class TCPDF_FONTS {
 			$fmetric['AvgWidth'] = round($fmetric['AvgWidth'] / count($cwidths));
 		} else {
 			// ---------- TRUE TYPE ----------
-			$offset = 0; // offset position of the font data
-			if (TCPDF_STATIC::_getULONG($font, $offset) != 0x10000) {
-				// sfnt version must be 0x00010000 for TrueType version 1.0.
-				return false;
-			}
 			if ($fmetric['type'] != 'cidfont0') {
 				if ($link) {
 					// creates a symbolic link to the existing font
@@ -366,10 +361,15 @@ class TCPDF_FONTS {
 				} else {
 					// store compressed font
 					$fmetric['file'] .= '.z';
-					$fp = TCPDF_STATIC::fopenLocal($outpath.$fmetric['file'], 'wb');
+					$fp = fopen($outpath.$fmetric['file'], 'wb');
 					fwrite($fp, gzcompress($font));
 					fclose($fp);
 				}
+			}
+			$offset = 0; // offset position of the font data
+			if (TCPDF_STATIC::_getULONG($font, $offset) != 0x10000) {
+				// sfnt version must be 0x00010000 for TrueType version 1.0.
+				return false;
 			}
 			$offset += 4;
 			// get number of tables
@@ -435,10 +435,6 @@ class TCPDF_FONTS {
 				$tot_num_glyphs = floor($table['loca']['length'] / 2); // numGlyphs + 1
 				for ($i = 0; $i < $tot_num_glyphs; ++$i) {
 					$indexToLoc[$i] = TCPDF_STATIC::_getUSHORT($font, $offset) * 2;
-					if (isset($indexToLoc[($i - 1)]) && ($indexToLoc[$i] == $indexToLoc[($i - 1)])) {
-						// the last glyph didn't have an outline
-						unset($indexToLoc[($i - 1)]);
-					}
 					$offset += 2;
 				}
 			} else {
@@ -446,10 +442,6 @@ class TCPDF_FONTS {
 				$tot_num_glyphs = floor($table['loca']['length'] / 4); // numGlyphs + 1
 				for ($i = 0; $i < $tot_num_glyphs; ++$i) {
 					$indexToLoc[$i] = TCPDF_STATIC::_getULONG($font, $offset);
-					if (isset($indexToLoc[($i - 1)]) && ($indexToLoc[$i] == $indexToLoc[($i - 1)])) {
-						// the last glyph didn't have an outline
-						unset($indexToLoc[($i - 1)]);
-					}
 					$offset += 4;
 				}
 			}
@@ -800,7 +792,6 @@ class TCPDF_FONTS {
 			}
 			$fmetric['MissingWidth'] = $cw[0];
 			$fmetric['cw'] = '';
-			$fmetric['cbbox'] = '';
 			for ($cid = 0; $cid <= 65535; ++$cid) {
 				if (isset($ctg[$cid])) {
 					if (isset($cw[$ctg[$cid]])) {
@@ -818,7 +809,7 @@ class TCPDF_FONTS {
 			}
 		} // end of true type
 		if (($fmetric['type'] == 'TrueTypeUnicode') AND (count($ctg) == 256)) {
-			$fmetric['type'] = 'TrueType';
+			$fmetric['type'] == 'TrueType';
 		}
 		// ---------- create php font file ----------
 		$pfile = '<'.'?'.'php'."\n";
@@ -885,7 +876,7 @@ class TCPDF_FONTS {
 					$cidtogidmap = self::updateCIDtoGIDmap($cidtogidmap, $cid, $ctg[$cid]);
 				}
 				// store compressed CIDToGIDMap
-				$fp = TCPDF_STATIC::fopenLocal($outpath.$fmetric['ctg'], 'wb');
+				$fp = fopen($outpath.$fmetric['ctg'], 'wb');
 				fwrite($fp, gzcompress($cidtogidmap));
 				fclose($fp);
 			}
@@ -905,13 +896,13 @@ class TCPDF_FONTS {
 		$pfile .= '\'MaxWidth\'=>'.$fmetric['MaxWidth'].',';
 		$pfile .= '\'MissingWidth\'=>'.$fmetric['MissingWidth'].'';
 		$pfile .= ');'."\n";
-		if (!empty($fmetric['cbbox'])) {
+		if (isset($fmetric['cbbox'])) {
 			$pfile .= '$cbbox=array('.substr($fmetric['cbbox'], 1).');'."\n";
 		}
 		$pfile .= '$cw=array('.substr($fmetric['cw'], 1).');'."\n";
 		$pfile .= '// --- EOF ---'."\n";
 		// store file
-		$fp = TCPDF_STATIC::fopenLocal($outpath.$font_name.'.php', 'w');
+		$fp = fopen($outpath.$font_name.'.php', 'w');
 		fwrite($fp, $pfile);
 		fclose($fp);
 		// return TCPDF font name

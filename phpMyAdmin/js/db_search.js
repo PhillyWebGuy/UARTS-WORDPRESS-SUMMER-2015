@@ -23,7 +23,7 @@ AJAX.registerTeardown('db_search.js', function () {
     $('#togglesearchresultlink').unbind('click');
     $("#togglequerybox").unbind('click');
     $('#togglesearchformlink').unbind('click');
-    $(document).off('submit', "#db_search_form.ajax");
+    $("#db_search_form.ajax").die('submit');
 });
 
 /**
@@ -44,7 +44,7 @@ function loadResult(result_path, table_name, link)
         /**  Load the browse results to the page */
         $("#table-info").show();
         $('#table-link').attr({"href" : 'sql.php' + link }).text(table_name);
-        var url = result_path + "#searchresults";
+        var url = result_path + "#sqlqueryresults";
         $.get(url, {'ajax_request': true, 'is_js_confirmed': true}, function (data) {
             if (typeof data !== 'undefined' && data.success) {
                 $('#browse-results').html(data.message);
@@ -53,9 +53,7 @@ function loadResult(result_path, table_name, link)
                         scrollTop: $("#browse-results").offset().top
                     }, 1000);
                 PMA_ajaxRemoveMessage($msg);
-                $('.table_results').each(function () {
-                    PMA_makegrid(this, true, true, true, true);
-                });
+                PMA_makegrid($('#table_results')[0], true, true, true, true);
                 $('#browse-results').show();
             } else {
                 PMA_ajaxShowMessage(data.error, false);
@@ -84,7 +82,7 @@ function deleteResult(result_path, msg)
             var $msg = PMA_ajaxShowMessage(PMA_messages.strDeleting, false);
             /** Load the deleted option to the page*/
             $('#sqlqueryform').html('');
-            var url = result_path;
+            var url = result_path + "#result_query, #sqlqueryform";
             $.get(url, {'ajax_request': true, 'is_js_confirmed': true},
                 function (data) {
                     if (typeof data !== 'undefined' && data.success) {
@@ -194,7 +192,7 @@ AJAX.registerOnload('db_search.js', function () {
     /**
      * Ajax Event handler for retrieving the result of an SQL Query
      */
-    $(document).on('submit', "#db_search_form.ajax", function (event) {
+    $("#db_search_form.ajax").live('submit', function (event) {
         event.preventDefault();
 
         var $msgbox = PMA_ajaxShowMessage(PMA_messages.strSearching, false);
@@ -230,7 +228,7 @@ AJAX.registerOnload('db_search.js', function () {
                     .show();
             } else {
                 // error message (zero rows)
-                $("#searchresults").html(data.error).show();
+                $("#sqlqueryresults").html(data.error);
             }
 
             PMA_ajaxRemoveMessage($msgbox);

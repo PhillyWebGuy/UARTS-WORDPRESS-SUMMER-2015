@@ -129,11 +129,6 @@ if (! $result) {
                 null, $sql_query, 'success'
             )
         );
-        $response->addJSON(
-            'url_query', $GLOBALS['cfg']['DefaultTabDatabase']
-            . $url_query . '&amp;db='
-            . urlencode($current['SCHEMA_NAME'])
-        );
     } else {
         include_once '' . $cfg['DefaultTabDatabase'];
     }

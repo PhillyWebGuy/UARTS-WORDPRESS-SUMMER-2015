@@ -17,7 +17,7 @@ if (! defined('PHPMYADMIN')) {
 }
 
 /**
- * The generated file that contains the line numbers for the js files
+ * The generated file that contains the linenumbers for the js files
  * If you change any of the js files you can run the scripts/line-counts.sh
  */
 if (is_readable('js/line_counts.php')) {
@@ -133,7 +133,7 @@ function PMA_getReportData($exception_type = 'js')
 
 /**
  * Sanitize a url to remove the identifiable host name and extract the
- * current script name from the url fragment
+ * current scriptname from the url fragment
  *
  * It returns two things in an array. The first is the uri without the
  * hostname and identifying query params. The second is the name of the
@@ -197,7 +197,7 @@ function PMA_sendErrorReport($report)
             )
         );
         $context = PMA_Util::handleContext($context);
-        $response = @file_get_contents(
+        $response = file_get_contents(
             SUBMISSION_URL,
             false,
             stream_context_create($context)
@@ -210,9 +210,6 @@ function PMA_sendErrorReport($report)
     }
 
     $curl_handle = curl_init(SUBMISSION_URL);
-    if ($curl_handle === false) {
-        return null;
-    }
     $curl_handle = PMA_Util::configureCurl($curl_handle);
     curl_setopt($curl_handle, CURLOPT_CUSTOMREQUEST, "POST");
     curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array('Expect:'));

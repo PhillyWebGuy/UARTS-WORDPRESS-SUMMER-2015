@@ -120,7 +120,7 @@ AJAX.registerTeardown('tbl_zoom_plot_jqplot.js', function () {
     $('#tableid_3').unbind('change');
     $('#inputFormSubmitId').unbind('click');
     $('#togglesearchformlink').unbind('click');
-    $(document).on('keydown', "#dataDisplay :input");
+    $("#dataDisplay").find(':input').die('keydown');
     $('button.button-reset').unbind('click');
     $('div#resizer').unbind('resizestop');
     $('div#querychart').unbind('jqplotDataClick');
@@ -142,12 +142,7 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
 
 
     // Get query result
-    var searchedData;
-    try {
-        searchedData = jQuery.parseJSON($('#querydata').html());
-    } catch (err) {
-        searchedData = null;
-    }
+    var searchedData = jQuery.parseJSON($('#querydata').html());
 
     /**
      ** Input form submit on field change
@@ -410,8 +405,8 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
                     'inline_edit' : false
                 }, function (data) {
                     if (typeof data !== 'undefined' && data.success === true) {
-                        $('#sqlqueryresultsouter').html(data.sql_query);
-                        PMA_highlightSQL($('#sqlqueryresultsouter'));
+                        $('#sqlqueryresults').html(data.sql_query);
+                        $("#sqlqueryresults").trigger('appendAnchor');
                     } else {
                         PMA_ajaxShowMessage(data.error, false);
                     }
@@ -437,7 +432,7 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
      * in the dialog. Used to submit the Ajax
      * request when the ENTER key is pressed.
      */
-    $(document).on('keydown', "#dataDisplay :input", function (e) {
+    $("#dataDisplay").find(':input').live('keydown', function (e) {
         if (e.which === 13) { // 13 is the ENTER key
             e.preventDefault();
             if (typeof buttonOptions[PMA_messages.strSave] === 'function') {

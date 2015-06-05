@@ -205,14 +205,14 @@ class PMA_DbSearch
         // For "as regular expression" (search option 4), LIKE won't be used
         // Usage example: If user is searching for a literal $ in a regexp search,
         // he should enter \$ as the value.
-        $criteriaSearchStringEscaped = PMA_Util::sqlAddSlashes(
+        $this->_criteriaSearchString = PMA_Util::sqlAddSlashes(
             $this->_criteriaSearchString,
             ($this->_criteriaSearchType == 4 ? false : true)
         );
         // Extract search words or pattern
         $search_words = (($this->_criteriaSearchType > 2)
-            ? array($criteriaSearchStringEscaped)
-            : explode(' ', $criteriaSearchStringEscaped));
+            ? array($this->_criteriaSearchString)
+            : explode(' ', $this->_criteriaSearchString));
 
         foreach ($search_words as $search_word) {
             // Eliminates empty values

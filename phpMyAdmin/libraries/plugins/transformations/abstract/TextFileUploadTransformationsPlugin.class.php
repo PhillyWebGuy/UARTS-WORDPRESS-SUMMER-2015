@@ -58,12 +58,11 @@ abstract class TextFileUploadTransformationsPlugin extends IOTransformationsPlug
      * @param string $column_name_appendix the name attribute
      * @param array  $options              transformation options
      * @param string $value                Current field value
-     * @param string $text_dir             text direction
      *
      * @return string the html for input field
      */
     public function getInputHtml(
-        $column, $row_id, $column_name_appendix, $options, $value, $text_dir
+        $column, $row_id, $column_name_appendix, $options, $value
     ) {
         $html = '';
         if (!empty($value)) {

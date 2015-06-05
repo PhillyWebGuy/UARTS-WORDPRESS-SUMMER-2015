@@ -92,8 +92,10 @@ if (isset($_REQUEST['do_save_data'])) {
             __('Table %1$s has been altered successfully.')
         );
         $message->addParam($table);
+        $response->addJSON('message', $message);
         $response->addJSON(
-            'message', PMA_Util::getMessage($message, $sql_query, 'success')
+            'sql_query',
+            PMA_Util::getMessage(null, $sql_query)
         );
         exit;
     } else {

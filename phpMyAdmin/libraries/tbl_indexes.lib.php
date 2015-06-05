@@ -64,10 +64,12 @@ function PMA_handleCreateOrEditIndex($db, $table, $index)
 
         if ($GLOBALS['is_ajax_request'] == true) {
             $response = PMA_Response::getInstance();
-            $response->addJSON(
-                'message', PMA_Util::getMessage($message, $sql_query, 'success')
-            );
+            $response->addJSON('message', $message);
             $response->addJSON('index_table', PMA_Index::getView($table, $db));
+            $response->addJSON(
+                'sql_query',
+                PMA_Util::getMessage(null, $sql_query)
+            );
         } else {
             include 'tbl_structure.php';
         }
@@ -107,7 +109,7 @@ function PMA_getSqlQueryForIndexCreateOrEdit($db, $table, $index, &$error)
     } // end if
 
     // Builds the new one
-    switch ($index->getChoice()) {
+    switch ($index->getType()) {
     case 'PRIMARY':
         if ($index->getName() == '') {
             $index->setName('PRIMARY');
@@ -125,7 +127,7 @@ function PMA_getSqlQueryForIndexCreateOrEdit($db, $table, $index, &$error)
         if ($index->getName() == 'PRIMARY') {
             $error = PMA_Message::error(__('Can\'t rename index to PRIMARY!'));
         }
-        $sql_query .= ' ADD ' . $index->getChoice() . ' '
+        $sql_query .= ' ADD ' . $index->getType() . ' '
             . ($index->getName() ? PMA_Util::backquote($index->getName()) : '');
         break;
     } // end switch
@@ -144,31 +146,9 @@ function PMA_getSqlQueryForIndexCreateOrEdit($db, $table, $index, &$error)
         $sql_query .= ' (' . implode(', ', $index_fields) . ')';
     }
 
-    $keyBlockSizes = $index->getKeyBlockSize();
-    if (! empty($keyBlockSizes)) {
-        $sql_query .= " KEY_BLOCK_SIZE = "
-             . PMA_Util::sqlAddSlashes($keyBlockSizes);
-    }
-
-    // specifying index type is allowed only for primary, unique and index only
-    $type = $index->getType();
-    if ($index->getChoice() != 'SPATIAL'
-        && $index->getChoice() != 'FULLTEXT'
-        && in_array($type, PMA_Index::getIndexTypes())
-    ) {
-        $sql_query .= ' USING ' . $type;
-    }
-
-    $parser = $index->getParser();
-    if ($index->getChoice() == 'FULLTEXT' && ! empty($parser)) {
-        $sql_query .= " WITH PARSER " . PMA_Util::sqlAddSlashes($parser);
-    }
-
-    $comment = $index->getComment();
-    if (! empty($comment)) {
-        $sql_query .= " COMMENT '" . PMA_Util::sqlAddSlashes($comment) . "'";
-    }
-
+    $sql_query .= " COMMENT '"
+        . PMA_Util::sqlAddSlashes($index->getComment())
+        . "'";
     $sql_query .= ';';
 
     return $sql_query;
@@ -301,30 +281,15 @@ function PMA_getHtmlForIndexForm($fields, $index, $form_params, $add_fields)
     $html .= '<div>'
         . '<div class="label">'
         . '<strong>'
-        . '<label for="select_index_choice">'
-        . __('Index choice:')
-        . PMA_Util::showMySQLDocu('ALTER_TABLE')
+        . '<label for="input_index_comment">'
+        . __('Comment:')
         . '</label>'
         . '</strong>'
         . '</div>'
-        . $index->generateIndexChoiceSelector(isset($_REQUEST['create_edit_table']))
-        . '</div>';
-
-    $html .= PMA_Util::getDivForSliderEffect(
-        'indexoptions', __('Options')
-    );
-
-    $html .= '<div>'
-        . '<div class="label">'
-        . '<strong>'
-        . '<label for="input_key_block_size">'
-        . __('Key block size:')
-        . '</label>'
-        . '</strong>'
-        . '</div>'
-        . '<input type="text" name="index[Key_block_size]" '
-        . 'id="input_key_block_size" size="30" value="'
-        . htmlspecialchars($index->getKeyBlockSize()) . '" />'
+        . '<input type="text" name="index[Index_comment]" '
+        . 'id="input_index_comment" size="30"'
+        . 'value="' . htmlspecialchars($index->getComment()) . '"'
+        . 'onfocus="this.select()" />'
         . '</div>';
 
     $html .= '<div>'
@@ -336,35 +301,11 @@ function PMA_getHtmlForIndexForm($fields, $index, $form_params, $add_fields)
         . '</label>'
         . '</strong>'
         . '</div>'
-        . $index->generateIndexTypeSelector()
+        . '<select name="index[Index_type]" id="select_index_type" '
+        . (isset($_REQUEST['create_edit_table']) ? 'disabled="disabled"' : '') . '>'
+        . $index->generateIndexSelector()
+        . '</select>'
         . '</div>';
-
-    $html .= '<div>'
-        . '<div class="label">'
-        . '<strong>'
-        . '<label for="input_parser">'
-        . __('Parser:')
-        . '</label>'
-        . '</strong>'
-        . '</div>'
-        . '<input type="text" name="index[Parser]" '
-        . 'id="input_parse" size="30" value="' . htmlspecialchars($index->getParser()) . '" />'
-        . '</div>';
-
-    $html .= '<div>'
-        . '<div class="label">'
-        . '<strong>'
-        . '<label for="input_index_comment">'
-        . __('Comment:')
-        . '</label>'
-        . '</strong>'
-        . '</div>'
-        . '<input type="text" name="index[Index_comment]" '
-        . 'id="input_index_comment" size="30"'
-        . 'value="' . htmlspecialchars($index->getComment()) . '" />'
-        . '</div>';
-
-    $html .= '</div>'; // end of indexoptions div
 
     $html .= '<div class="clearfloat"></div>';
 
@@ -395,9 +336,9 @@ function PMA_getHtmlForIndexForm($fields, $index, $form_params, $add_fields)
         $html .= '<select name="index[columns][names][]">';
         $html .= '<option value="">-- ' . __('Ignore') . ' --</option>';
         foreach ($fields as $field_name => $field_type) {
-            if (($index->getChoice() != 'FULLTEXT'
+            if (($index->getType() != 'FULLTEXT'
                 || preg_match('/(char|text)/i', $field_type))
-                && ($index->getChoice() != 'SPATIAL'
+                && ($index->getType() != 'SPATIAL'
                 || in_array($field_type, $spatial_types))
             ) {
                 $html .= '<option value="' . htmlspecialchars($field_name) . '"'
@@ -414,7 +355,7 @@ function PMA_getHtmlForIndexForm($fields, $index, $form_params, $add_fields)
         $html .= '<td>';
         $html .= '<input type="text" size="5" onfocus="this.select()"'
             . 'name="index[columns][sub_parts][]" value="';
-        if ($index->getChoice() != 'SPATIAL') {
+        if ($index->getType() != 'SPATIAL') {
             $html .= $column->getSubPart();
         }
         $html .= '"/>';
@@ -458,19 +399,16 @@ function PMA_getHtmlForIndexForm($fields, $index, $form_params, $add_fields)
 
     $html .= '</table>';
 
-    $html .= '<div class="add_more">';
-    $btn_value = sprintf(__('Add %s column(s) to index'), 1);
-    $html .= '<div class="slider"></div>';
-    $html .= '<div class="add_fields hide">';
-    $html .= '<input type="submit" id="add_fields" value="' . $btn_value . '" />';
-    $html .= '</div>';
-    $html .= '</div>';
-
     $html .= '</fieldset>';
 
     $html .= '<fieldset class="tblFooters">';
-    $html .= '<button type="submit" id="preview_index_frm">' . __('Preview SQL') . '</button>';
-    $html .= '<input type="submit" id="save_index_frm" value="' . __('Go') . '" />';
+
+    $btn_value = sprintf(__('Add %s column(s) to index'), 1);
+    $html .= '<div class="slider"></div>';
+    $html .= '<div class="add_fields">';
+    $html .= '<input type="submit" value="' . $btn_value . '" />';
+    $html .= '</div>';
+
     $html .= '</fieldset>';
 
     $html .= '</form>';

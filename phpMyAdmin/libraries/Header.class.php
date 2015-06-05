@@ -158,14 +158,14 @@ class PMA_Header
         if (isset($GLOBALS['db'])) {
             $params['db'] = $GLOBALS['db'];
         }
-        $this->_scripts->addFile('jquery/jquery-1.11.1.min.js');
+        $this->_scripts->addFile('jquery/jquery-1.8.3.min.js');
         $this->_scripts->addFile(
             'whitelist.php' . PMA_URL_getCommon($params), false, true
         );
         $this->_scripts->addFile('sprintf.js');
         $this->_scripts->addFile('ajax.js');
         $this->_scripts->addFile('keyhandler.js');
-        $this->_scripts->addFile('jquery/jquery-ui-1.11.2.min.js');
+        $this->_scripts->addFile('jquery/jquery-ui-1.9.2.custom.min.js');
         $this->_scripts->addFile('jquery/jquery.cookie.js');
         $this->_scripts->addFile('jquery/jquery.mousewheel.js');
         $this->_scripts->addFile('jquery/jquery.event.drag-2.2.js');
@@ -237,16 +237,12 @@ class PMA_Header
             'db'    => $db,
             'token' => $_SESSION[' PMA_token '],
             'text_dir' => $GLOBALS['text_dir'],
-            'show_databases_navigation_as_tree'=> $GLOBALS['cfg']['ShowDatabasesNavigationAsTree'],
             'pma_absolute_uri' => $GLOBALS['cfg']['PmaAbsoluteUri'],
             'pma_text_default_tab' => PMA_Util::getTitleForTarget(
                 $GLOBALS['cfg']['DefaultTabTable']
             ),
             'pma_text_left_default_tab' => PMA_Util::getTitleForTarget(
                 $GLOBALS['cfg']['NavigationTreeDefaultTabTable']
-            ),
-            'pma_text_left_default_tab2' => PMA_Util::getTitleForTarget(
-                $GLOBALS['cfg']['NavigationTreeDefaultTabTable2']
             ),
             'LimitChars' => $GLOBALS['cfg']['LimitChars'],
             'pftext' => $pftext,
@@ -404,7 +400,6 @@ class PMA_Header
                     $this->_scripts->addFile('codemirror/addon/hint/show-hint.js');
                     $this->_scripts->addFile('codemirror/addon/hint/sql-hint.js');
                 }
-                $this->_scripts->addFiles($this->_console->getScripts());
                 if ($this->_userprefsOfferImport) {
                     $this->_scripts->addFile('config.js');
                 }
@@ -441,11 +436,9 @@ class PMA_Header
                     $retval .= $this->_menu->getDisplay();
                     $retval .= '<span id="lock_page_icon"></span>';
                     $retval .= sprintf(
-                        '<a id="goto_pagetop" href="#">%s</a>',
-                        PMA_Util::getImage(
-                            's_top.png',
-                            __('Click on the bar to scroll to top of page')
-                        )
+                        '<a id="goto_pagetop" href="#" title="%s">%s</a>',
+                        __('Click on the bar to scroll to top of page'),
+                        PMA_Util::getImage('s_top.png')
                     );
                 }
                 $retval .= $this->_console->getDisplay();
@@ -513,8 +506,7 @@ class PMA_Header
         if (!empty($GLOBALS['cfg']['CaptchaLoginPrivateKey'])
             && !empty($GLOBALS['cfg']['CaptchaLoginPublicKey'])
         ) {
-            $captcha_url = ' https://apis.google.com https://www.google.com/recaptcha/'
-               . ' https://www.gstatic.com/recaptcha/ https://ssl.gstatic.com/ ';
+            $captcha_url = ' https://www.google.com ';
         } else {
             $captcha_url = '';
         }
@@ -626,6 +618,7 @@ class PMA_Header
             . 'type="image/x-icon" />';
         // stylesheets
         $basedir    = defined('PMA_PATH_TO_BASEDIR') ? PMA_PATH_TO_BASEDIR : '';
+        $common_url = PMA_URL_getCommon(array('server' => $GLOBALS['server']));
         $theme_id   = $GLOBALS['PMA_Config']->getThemeUniqueValue();
         $theme_path = $GLOBALS['pmaThemePath'];
 
@@ -636,10 +629,11 @@ class PMA_Header
             // load jQuery's CSS prior to our theme's CSS, to let the theme
             // override jQuery's CSS
             $retval .= '<link rel="stylesheet" type="text/css" href="'
-                . $theme_path . '/jquery/jquery-ui-1.11.2.css" />';
+                . $theme_path . '/jquery/jquery-ui-1.9.2.custom.css" />';
             $retval .= '<link rel="stylesheet" type="text/css" href="'
-                . $basedir . 'phpmyadmin.css.php?'
-                . 'nocache=' . $theme_id . $GLOBALS['text_dir'] . '" />';
+                . $basedir . 'phpmyadmin.css.php'
+                . $common_url . '&amp;nocache='
+                . $theme_id . $GLOBALS['text_dir'] . '" />';
         }
 
         return $retval;

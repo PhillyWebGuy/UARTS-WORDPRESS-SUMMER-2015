@@ -246,6 +246,7 @@ function PMA_URL_getArgSeparator($encode = 'none')
     switch ($encode) {
     case 'html':
         return $html_separator;
+        break;
     case 'text' :
     case 'none' :
     default :

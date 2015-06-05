@@ -756,7 +756,7 @@ class PMA_Util
 
         if ($tables === null) {
             $tables = $GLOBALS['dbi']->getTablesFull(
-                $db, '', false, null, $limit_offset, $limit_count
+                $db, false, false, null, $limit_offset, $limit_count
             );
             if ($GLOBALS['cfg']['NaturalOrder']) {
                 uksort($tables, 'strnatcasecmp');
@@ -904,12 +904,12 @@ class PMA_Util
     } // end of the 'backquote()' function
 
     /**
-     * Adds backquotes on both sides of a database, table or field name.
+     * Adds quotes on both sides of a database, table or field name.
      * in compatibility mode
      *
      * example:
      * <code>
-     * echo backquoteCompat('owner`s db'); // `owner``s db`
+     * echo backquote('owner`s db'); // `owner``s db`
      *
      * </code>
      *
@@ -1018,7 +1018,7 @@ class PMA_Util
 
         // In an Ajax request, $GLOBALS['cell_align_left'] may not be defined. Hence,
         // check for it's presence before using it
-        $retval .= '<div class="result_query"'
+        $retval .= '<div id="result_query"'
             . ( isset($GLOBALS['cell_align_left'])
                 ? ' style="text-align: ' . $GLOBALS['cell_align_left'] . '"'
                 : '' )
@@ -1271,7 +1271,7 @@ class PMA_Util
                 $inline_edit_link = ' ['
                     . self::linkOrButton(
                         '#',
-                        _pgettext('Inline edit query', 'Edit inline'),
+                        _pgettext('Inline edit query', 'Inline'),
                         array('class' => 'inline_edit_sql')
                     )
                     . ']';
@@ -1498,19 +1498,19 @@ class PMA_Util
 
         // If we don't want any zeros after the comma just add the thousand separator
         if ($noTrailingZero) {
-            $localizedValue = self::localizeNumber(
+            $value = self::localizeNumber(
                 preg_replace('/(?<=\d)(?=(\d{3})+(?!\d))/', ',', $value)
             );
         } else {
             //number_format is not multibyte safe, str_replace is safe
-            $localizedValue = self::localizeNumber(number_format($value, $digits_right));
+            $value = self::localizeNumber(number_format($value, $digits_right));
         }
 
         if ($originalValue != 0 && floatval($value) == 0) {
-            return ' <' . self::localizeNumber((1 / self::pow(10, $digits_right))) . ' ' . $unit;
+            return ' <' . (1 / self::pow(10, $digits_right)) . ' ' . $unit;
         }
 
-        return $sign . $localizedValue . ' ' . $unit;
+        return $sign . $value . ' ' . $unit;
     } // end of the 'formatNumber' function
 
     /**
@@ -1610,14 +1610,7 @@ class PMA_Util
             $date
         );
 
-        $ret = strftime($date, $timestamp);
-        // Some OSes such as Win8.1 Traditional Chinese version did not produce UTF-8
-        // output here. See https://sourceforge.net/p/phpmyadmin/bugs/4207/
-        if (mb_detect_encoding($ret, 'UTF-8', true) != 'UTF-8') {
-            $ret = date('Y-m-d H:i:s', $timestamp);
-        }
-
-        return $ret;
+        return strftime($date, $timestamp);
     } // end of the 'localisedDate()' function
 
     /**
@@ -1797,6 +1790,15 @@ class PMA_Util
             $tag_params['target'] = htmlentities($target);
         }
 
+        $tag_params_strings = array();
+        foreach ($tag_params as $par_name => $par_value) {
+            // htmlspecialchars() only on non javascript
+            $par_value = /*overload*/mb_substr($par_name, 0, 2) == 'on'
+                ? $par_value
+                : htmlspecialchars($par_value);
+            $tag_params_strings[] = $par_name . '="' . $par_value . '"';
+        }
+
         $displayed_message = '';
         // Add text if not already added
         if (stristr($message, '<img')
@@ -1832,15 +1834,6 @@ class PMA_Util
         if (($url_length <= $GLOBALS['cfg']['LinkLengthLimit'])
             && $in_suhosin_limits
         ) {
-            $tag_params_strings = array();
-            foreach ($tag_params as $par_name => $par_value) {
-                // htmlspecialchars() only on non javascript
-                $par_value = /*overload*/mb_substr($par_name, 0, 2) == 'on'
-                    ? $par_value
-                    : htmlspecialchars($par_value);
-                $tag_params_strings[] = $par_name . '="' . $par_value . '"';
-            }
-
             // no whitespace within an <a> else Safari will make it part of the link
             $ret = "\n" . '<a href="' . $url . '" '
                 . implode(' ', $tag_params_strings) . '>'
@@ -1849,6 +1842,11 @@ class PMA_Util
             // no spaces (line breaks) at all
             // or after the hidden fields
             // IE will display them all
+
+            // add class=link to submit button
+            if (empty($tag_params['class'])) {
+                $tag_params['class'] = 'link';
+            }
 
             if (! isset($query_parts)) {
                 $query_parts = self::splitURLQuery($url);
@@ -1881,22 +1879,7 @@ class PMA_Util
                     . htmlspecialchars(urldecode($eachval)) . '" />';
             } // end while
 
-            if (empty($tag_params['class'])) {
-                $tag_params['class'] = 'formLinkSubmit';
-            } else {
-                $tag_params['class'] .= ' formLinkSubmit';
-            }
-
-            $tag_params_strings = array();
-            foreach ($tag_params as $par_name => $par_value) {
-                // htmlspecialchars() only on non javascript
-                $par_value = /*overload*/mb_substr($par_name, 0, 2) == 'on'
-                    ? $par_value
-                    : htmlspecialchars($par_value);
-                $tag_params_strings[] = $par_name . '="' . $par_value . '"';
-            }
-
-            $ret .= "\n" . '<a href="' . $submit_link . '" '
+            $ret .= "\n" . '<a href="' . $submit_link . '" class="formLinkSubmit" '
                 . implode(' ', $tag_params_strings) . '>'
                 . $message . ' ' . $displayed_message . '</a>' . "\n";
 
@@ -2327,9 +2310,10 @@ class PMA_Util
         $pageNowMinusRange = ($pageNow - $range);
         $pageNowPlusRange = ($pageNow + $range);
 
-        $gotopage = $prompt . ' <select class="pageselector ajax"';
+        $gotopage = $prompt . ' <select class="pageselector ';
+        $gotopage .= ' ajax';
 
-        $gotopage .= ' name="' . $name . '" >';
+        $gotopage .= '" name="' . $name . '" >';
         if ($nbTotalPage < $showAll) {
             $pages = range(1, $nbTotalPage);
         } else {
@@ -2489,9 +2473,9 @@ class PMA_Util
                     . '</a>';
 
                 $_url_params[$name] = $pos - $max_count;
-                $list_navigator_html .= ' <a' . $class . $title2
-                    . ' href="' . $script . PMA_URL_getCommon($_url_params) . '">'
-                    . $caption2 . '</a>';
+                $list_navigator_html .= ' <a' . $class . $title2 . ' href="' . $script
+                    . PMA_URL_getCommon($_url_params) . '">' . $caption2
+                    . '</a>';
             }
 
             $list_navigator_html .= '<form action="' . basename($script)
@@ -2532,9 +2516,9 @@ class PMA_Util
                     $_url_params[$name] = $count - $max_count;
                 }
 
-                $list_navigator_html .= ' <a' . $class . $title4
-                    . ' href="' . $script . PMA_URL_getCommon($_url_params) . '" >'
-                    . $caption4 . '</a>';
+                $list_navigator_html .= ' <a' . $class . $title4 . ' href="' . $script
+                    . PMA_URL_getCommon($_url_params) . '" >' . $caption4
+                    . '</a>';
             }
             $list_navigator_html .= '</div>' . "\n";
         }
@@ -2628,19 +2612,15 @@ class PMA_Util
      * @param string  $label           label for checkbox
      * @param boolean $checked         is it initially checked?
      * @param boolean $onclick         should it submit the form on click?
-     * @param string  $html_field_id   id for the checkbox
      *
      * @return string                  HTML for the checkbox
      */
-    public static function getCheckbox(
-        $html_field_name, $label, $checked, $onclick, $html_field_id = ''
-    ) {
-        return '<input type="checkbox" name="' . $html_field_name . '"'
-            . ($html_field_id ? ' id="' . $html_field_id . '"' : '')
-            . ($checked ? ' checked="checked"' : '')
-            . ($onclick ? ' class="autosubmit"' : '') . ' />'
-            . '<label' . ($html_field_id ? ' for="' . $html_field_id . '"' : '')
-            . '>' . $label . '</label>';
+    public static function getCheckbox($html_field_name, $label, $checked, $onclick)
+    {
+        return '<input type="checkbox" name="' . $html_field_name . '" id="'
+            . $html_field_name . '"' . ($checked ? ' checked="checked"' : '')
+            . ($onclick ? ' class="autosubmit"' : '') . ' /><label for="'
+            . $html_field_name . '">' . $label . '</label>';
     }
 
     /**
@@ -2652,15 +2632,12 @@ class PMA_Util
      * @param boolean $line_break      whether to add HTML line break after a choice
      * @param boolean $escape_label    whether to use htmlspecialchars() on label
      * @param string  $class           enclose each choice with a div of this class
-     * @param string  $id_prefix       prefix for the id attribute, name will be
-     *                                 used if this is not supplied
      *
      * @return string                  set of html radio fiels
      */
     public static function getRadioFields(
         $html_field_name, $choices, $checked_choice = '',
-        $line_break = true, $escape_label = true, $class = '',
-        $id_prefix = ''
+        $line_break = true, $escape_label = true, $class = ''
     ) {
         $radio_html = '';
 
@@ -2670,10 +2647,7 @@ class PMA_Util
                 $radio_html .= '<div class="' . $class . '">';
             }
 
-            if (! $id_prefix) {
-                $id_prefix = $html_field_name;
-            }
-            $html_field_id = $id_prefix . '_' . $choice_value;
+            $html_field_id = $html_field_name . '_' . $choice_value;
             $radio_html .= '<input type="radio" name="' . $html_field_name . '" id="'
                         . $html_field_id . '" value="'
                         . htmlspecialchars($choice_value) . '"';
@@ -2712,15 +2686,13 @@ class PMA_Util
      *                              case the dropdown is present more than once
      *                              on the page
      * @param string $class         class for the select element
-     * @param string $placeholder   Placeholder for dropdown if nothing else
-     *                              is selected
      *
      * @return string               html content
      *
      * @todo    support titles
      */
     public static function getDropdown(
-        $select_name, $choices, $active_choice, $id, $class = '', $placeholder = null
+        $select_name, $choices, $active_choice, $id, $class = ''
     ) {
         $result = '<select'
             . ' name="' . htmlspecialchars($select_name) . '"'
@@ -2728,30 +2700,15 @@ class PMA_Util
             . (! empty($class) ? ' class="' . htmlspecialchars($class) . '"' : '')
             . '>';
 
-        $resultOptions = '';
-        $selected = false;
-
         foreach ($choices as $one_choice_value => $one_choice_label) {
-            $resultOptions .= '<option value="'
-                . htmlspecialchars($one_choice_value) . '"';
+            $result .= '<option value="' . htmlspecialchars($one_choice_value) . '"';
 
             if ($one_choice_value == $active_choice) {
-                $resultOptions .= ' selected="selected"';
-                $selected = true;
+                $result .= ' selected="selected"';
             }
-            $resultOptions .= '>' . htmlspecialchars($one_choice_label)
-                . '</option>';
+            $result .= '>' . htmlspecialchars($one_choice_label) . '</option>';
         }
-
-        if (!empty($placeholder)) {
-            $resultOptions = '<option value="" disabled="disabled"'
-                . ( !$selected ? ' selected="selected"' : '' )
-                . '>' . $placeholder . '</option>'
-                . $resultOptions;
-        }
-
-        $result .= $resultOptions
-            . '</select>';
+        $result .= '</select>';
 
         return $result;
     }
@@ -2768,10 +2725,10 @@ class PMA_Util
      * @return string         html div element
      *
      */
-    public static function getDivForSliderEffect($id = '', $message = '')
+    public static function getDivForSliderEffect($id, $message)
     {
         if ($GLOBALS['cfg']['InitialSlidersState'] == 'disabled') {
-            return '<div' . ($id ? ' id="' . $id . '"' : '') . '>';
+            return '<div id="' . $id . '">';
         }
         /**
          * Bad hack on the next line. document.write() conflicts with jQuery,
@@ -2782,14 +2739,11 @@ class PMA_Util
          * append to
          */
 
-        return '<div'
-             . ($id ? ' id="' . $id . '"' : '')
+        return '<div id="' . $id . '"'
             . (($GLOBALS['cfg']['InitialSlidersState'] == 'closed')
                 ? ' style="display: none; overflow:auto;"'
                 : '')
-            . ' class="pma_auto_slider"'
-            . ($message ? ' title="' . htmlspecialchars($message) . '"' : '')
-            . '>';
+            . ' class="pma_auto_slider" title="' . htmlspecialchars($message) . '">';
     }
 
     /**
@@ -2986,7 +2940,7 @@ class PMA_Util
      */
     public static function convertBitDefaultValue($bit_default_value)
     {
-        return rtrim(ltrim($bit_default_value, "b'"), "'");
+        return strtr($bit_default_value, array("b" => "", "'" => ""));
     }
 
     /**
@@ -3196,7 +3150,6 @@ class PMA_Util
      * in order to display it as a title in navigation panel
      *
      * @param string $target a valid value for $cfg['NavigationTreeDefaultTabTable'],
-     *                       $cfg['NavigationTreeDefaultTabTable2'],
      *                       $cfg['DefaultTabTable'] or $cfg['DefaultTabDatabase']
      *
      * @return array
@@ -3217,7 +3170,7 @@ class PMA_Util
             'db_search.php' => __('Search'),
             'db_operations.php' => __('Operations'),
         );
-        return isset($mapping[$target]) ? $mapping[$target] : false;
+        return $mapping[$target];
     }
 
     /**
@@ -3386,8 +3339,8 @@ class PMA_Util
             . PMA_supportedDecompressions() . '))?$@';
 
         $active = (isset($GLOBALS['timeout_passed']) && $GLOBALS['timeout_passed']
-            && isset($GLOBALS['local_import_file']))
-            ? $GLOBALS['local_import_file']
+            && isset($local_import_file))
+            ? $local_import_file
             : '';
 
         $files = PMA_getFileSelectOptions(
@@ -3950,17 +3903,11 @@ class PMA_Util
      *
      * @param string $limit_clause limit clause
      *
-     * @return array|bool Start and length attributes of the limit clause or false
-     *                    on failure
+     * @return array|void Start and length attributes of the limit clause
      */
     public static function analyzeLimitClause($limit_clause)
     {
-        $limitParams = trim(str_ireplace('LIMIT', '', $limit_clause));
-        if ('' == $limitParams) {
-            return false;
-        }
-
-        $start_and_length = explode(',', $limitParams);
+        $start_and_length = explode(',', str_ireplace('LIMIT', '', $limit_clause));
         $size = count($start_and_length);
         if ($size == 1) {
             return array(
@@ -3973,8 +3920,6 @@ class PMA_Util
                 'length' => trim($start_and_length[1])
             );
         }
-
-        return false;
     }
 
     /**
@@ -4246,13 +4191,12 @@ class PMA_Util
                 );
             }
         }
-        curl_setopt($curl_handle, CURLOPT_USERAGENT, 'phpMyAdmin/' . PMA_VERSION);
         return $curl_handle;
     }
     /**
      * Returns information with latest version from phpmyadmin.net
      *
-     * @return object JSON decoded object with the data
+     * @return String JSON decoded object with the data
      */
     public static function getLatestVersion()
     {
@@ -4289,9 +4233,6 @@ class PMA_Util
                 );
             } else if (function_exists('curl_init')) {
                 $curl_handle = curl_init($file);
-                if ($curl_handle === false) {
-                    return null;
-                }
                 $curl_handle = PMA_Util::configureCurl($curl_handle);
                 curl_setopt(
                     $curl_handle,
@@ -4571,31 +4512,6 @@ class PMA_Util
         } // end while
 
         return array($primary, $pk_array, $indexes_info, $indexes_data);
-    }
-
-    /**
-     * Returns the HTML for check all check box and with selected text
-     * for multi submits
-     *
-     * @param string $pmaThemeImage path to theme's image folder
-     * @param string $text_dir      text direction
-     * @param string $formName      name of the enclosing form
-     *
-     * @return string HTML
-     */
-    public static function getWithSelected($pmaThemeImage, $text_dir, $formName)
-    {
-        $html = '<img class="selectallarrow" '
-            . 'src="' . $pmaThemeImage . 'arrow_' . $text_dir . '.png" '
-            . 'width="38" height="22" alt="' . __('With selected:') . '" />';
-        $html .= '<input type="checkbox" id="' . $formName . '_checkall" '
-            . 'class="checkall_box" title="' . __('Check All') . '" />'
-            . '<label for="' . $formName . '_checkall">' . __('Check All')
-            . '</label>';
-        $html .= '<i style="margin-left: 2em">'
-            . __('With selected:') . '</i>';
-
-        return $html;
     }
 }
 

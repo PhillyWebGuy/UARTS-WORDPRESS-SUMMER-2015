@@ -77,5 +77,5 @@ AJAX.registerOnload('keyhandler.js', function () {
 });
 
 AJAX.registerTeardown('keyhandler.js', function () {
-    $(document).off('click', "th.draggable.column_heading.pointer.marker a");
+    $("th.draggable.column_heading.pointer.marker a").die('click');
 });

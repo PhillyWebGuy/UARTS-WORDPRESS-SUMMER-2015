@@ -51,23 +51,21 @@ function checkAddUser(the_form)
  * Unbind all event handlers before tearing down a page
  */
 AJAX.registerTeardown('server_privileges.js', function () {
-    $(document).off("focusout", "#fieldset_add_user_login input[name='username']");
-    $(document).off('click', "#fieldset_delete_user_footer #buttonGo.ajax");
-    $(document).off('click', "a.edit_user_group_anchor.ajax");
-    $(document).off('click', "button.mult_submit[value=export]");
-    $(document).off('click', "a.export_user_anchor.ajax");
-    $(document).off('click',  "#initials_table a.ajax");
+    $("#fieldset_add_user_login input[name='username']").die("focusout");
+    $("#fieldset_delete_user_footer #buttonGo.ajax").die('click');
+    $("a.edit_user_group_anchor.ajax").die('click');
+    $("button.mult_submit[value=export]").die('click');
+    $("a.export_user_anchor.ajax").die('click');
+    $("#initials_table").find("a.ajax").die('click');
     $('#checkbox_drop_users_db').unbind('click');
-    $(document).off("click", ".checkall_box");
-    $(document).off('change', '#checkbox_SSL_priv');
-    $(document).off('change', 'input[name="ssl_type"]');
+    $(".checkall_box").die("click");
 });
 
 AJAX.registerOnload('server_privileges.js', function () {
     /**
      * Display a warning if there is already a user by the name entered as the username.
      */
-    $(document).on("focusout", "#fieldset_add_user_login input[name='username']", function () {
+    $("#fieldset_add_user_login input[name='username']").live("focusout", function () {
         var username = $(this).val();
         var $warning = $("#user_exists_warning");
         if ($("#select_pred_username").val() == 'userdefined' && username !== '') {
@@ -98,7 +96,7 @@ AJAX.registerOnload('server_privileges.js', function () {
      * @memberOf    jQuery
      * @name        revoke_user_click
      */
-    $(document).on('click', "#fieldset_delete_user_footer #buttonGo.ajax", function (event) {
+    $("#fieldset_delete_user_footer #buttonGo.ajax").live('click', function (event) {
         event.preventDefault();
 
         var $thisButton = $(this);
@@ -155,7 +153,7 @@ AJAX.registerOnload('server_privileges.js', function () {
 
     }); // end Revoke User
 
-    $(document).on('click', "a.edit_user_group_anchor.ajax", function (event) {
+    $("a.edit_user_group_anchor.ajax").live('click', function (event) {
         event.preventDefault();
         $(this).parents('tr').addClass('current_row');
         var token = $(this).parents('form').find('input[name="token"]').val();
@@ -231,7 +229,7 @@ AJAX.registerOnload('server_privileges.js', function () {
      * @memberOf    jQuery
      * @name        export_user_click
      */
-    $(document).on('click', "button.mult_submit[value=export]", function (event) {
+    $("button.mult_submit[value=export]").live('click', function (event) {
         event.preventDefault();
         // can't export if no users checked
         if ($(this.form).find("input:checked").length === 0) {
@@ -291,7 +289,7 @@ AJAX.registerOnload('server_privileges.js', function () {
         );
     }
 
-    $(document).on('click', "a.export_user_anchor.ajax", function (event) {
+    $("a.export_user_anchor.ajax").live('click', function (event) {
         event.preventDefault();
         var $msgbox = PMA_ajaxShowMessage();
         /**
@@ -340,7 +338,7 @@ AJAX.registerOnload('server_privileges.js', function () {
      * @name        paginate_users_table_click
      * @memberOf    jQuery
      */
-    $(document).on('click', "#initials_table a.ajax", function (event) {
+    $("#initials_table").find("a.ajax").live('click', function (event) {
         event.preventDefault();
         var $msgbox = PMA_ajaxShowMessage();
         $.get($(this).attr('href'), {'ajax_request' : true}, function (data) {
@@ -362,27 +360,6 @@ AJAX.registerOnload('server_privileges.js', function () {
             }
         }); // end $.get
     }); // end of the paginate users table
-
-    $(document).on('change', 'input[name="ssl_type"]', function (e) {
-        var $div = $('#specified_div');
-        if ($('#ssl_type_specified').is(':checked')) {
-            $div.find('input').prop('disabled', false);
-        } else {
-            $div.find('input').prop('disabled', true);
-        }
-    });
-
-    $(document).on('change', '#checkbox_SSL_priv', function (e) {
-        var $div = $('#require_ssl_div');
-        if ($(this).is(':checked')) {
-            $div.find('input').prop('disabled', false);
-            $('#ssl_type_specified').trigger('change');
-        } else {
-            $div.find('input').prop('disabled', true);
-        }
-    });
-
-    $('#checkbox_SSL_priv').trigger('change');
 
     /*
      * Create submenu for simpler interface

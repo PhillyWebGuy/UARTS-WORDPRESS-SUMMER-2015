@@ -239,13 +239,7 @@ function PMA_fatalError(
         }
 
         // these variables are used in the included file libraries/error.inc.php
-        //first check if php-mbstring is available
-        if (function_exists('mb_detect_encoding')) {
-            //If present use gettext
-            $error_header = __('Error');
-        } else {
-            $error_header = 'Error';
-        }
+        $error_header = __('Error');
         $lang = $GLOBALS['available_languages'][$GLOBALS['lang']][1];
         $dir = $GLOBALS['text_dir'];
 
@@ -709,15 +703,36 @@ function PMA_downloadHeader($filename, $mimetype, $length = 0, $no_cache = true)
     header('Content-Type: ' . $mimetype);
     // inform the server that compression has been done,
     // to avoid a double compression (for example with Apache + mod_deflate)
-    $notChromeOrLessThan43 = PMA_USR_BROWSER_AGENT != 'CHROME' // see bug #4942
-        || (PMA_USR_BROWSER_AGENT == 'CHROME' && PMA_USR_BROWSER_VER < 43);
-    if (strpos($mimetype, 'gzip') !== false && $notChromeOrLessThan43) {
+    if (strpos($mimetype, 'gzip') !== false) {
         header('Content-Encoding: gzip');
     }
     header('Content-Transfer-Encoding: binary');
     if ($length > 0) {
         header('Content-Length: ' . $length);
     }
+}
+
+/**
+ * Checks whether element given by $path exists in $array.
+ * $path is a string describing position of an element in an associative array,
+ * eg. Servers/1/host refers to $array[Servers][1][host]
+ *
+ * @param string $path  path in the array
+ * @param array  $array the array
+ *
+ * @return mixed    array element or $default
+ */
+function PMA_arrayKeyExists($path, $array)
+{
+    $keys = explode('/', $path);
+    $value =& $array;
+    foreach ($keys as $key) {
+        if (! isset($value[$key])) {
+            return false;
+        }
+        $value =& $value[$key];
+    }
+    return true;
 }
 
 /**
@@ -859,19 +874,12 @@ function PMA_isAllowedDomain($url)
         'docs.phpmyadmin.net',
         /* mysql.com domains */
         'dev.mysql.com','bugs.mysql.com',
-        /* drizzle.com domains */
-        'www.drizzle.org',
         /* php.net domains */
         'php.net',
         /* Github domains*/
         'github.com','www.github.com',
         /* Following are doubtful ones. */
-        'www.primebase.com',
-        'pbxt.blogspot.com',
-        'www.percona.com',
-        'mysqldatabaseadministration.blogspot.com',
-        'ronaldbradford.com',
-        'xaprb.com',
+        'www.primebase.com','pbxt.blogspot.com'
     );
     if (in_array(/*overload*/mb_strtolower($domain), $domainWhiteList)) {
         return true;

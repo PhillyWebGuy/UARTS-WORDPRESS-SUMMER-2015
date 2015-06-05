@@ -17,12 +17,6 @@ if (!function_exists('__')) {
 $strConfigAllowArbitraryServer_desc
     = __('If enabled, user can enter any MySQL server in login form for cookie auth.');
 $strConfigAllowArbitraryServer_name = __('Allow login to any MySQL server');
-$strConfigArbitraryServerRegexp_desc = __(
-    'Restricts the MySQL servers the user can enter when a login to an arbitrary '
-    . 'MySQL server is enabled by matching the IP or hostname of the MySQL server to the given '
-    . 'regular expression.'
-);
-$strConfigArbitraryServerRegexp_name = __('Restrict login to MySQL server');
 $strConfigAllowThirdPartyFraming_desc = __(
     'Enabling this allows a page located on a different domain to call phpMyAdmin '
     . 'inside a frame, and is a potential [strong]security hole[/strong] allowing '
@@ -84,6 +78,7 @@ $strConfigConfirm_desc = __(
 );
 $strConfigConfirm_name = __('Confirm DROP queries');
 $strConfigDBG_sql_name = __('Debug SQL');
+$strConfigDefaultDisplay_name = __('Default display direction');
 $strConfigDefaultTabDatabase_desc
     = __('Tab that is displayed when entering a database.');
 $strConfigDefaultTabDatabase_name = __('Default database tab');
@@ -249,7 +244,7 @@ $strConfigForm_Other_core_settings_desc
 $strConfigForm_Page_titles = __('Page titles');
 $strConfigForm_Page_titles_desc = __(
     'Specify browser\'s title bar text. Refer to '
-    . '[doc@faq6-27]documentation[/doc] for magic strings that can be used '
+    . '[doc@cfg_TitleTable]documentation[/doc] for magic strings that can be used '
     . 'to get special values.'
 );
 $strConfigForm_Query_window = __('Query window');
@@ -334,8 +329,7 @@ $strConfigImport_csv_col_names_name = __('Lines terminated with');
 $strConfigImport_csv_enclosed_name = __('Columns enclosed with');
 $strConfigImport_csv_escaped_name = __('Columns escaped with');
 $strConfigImport_csv_ignore_name = __('Do not abort on INSERT error');
-$strConfigImport_csv_replace_name = __('Add ON DUPLICATE KEY UPDATE');
-$strConfigImport_csv_replace_desc = __('Update data when duplicate keys found on import');
+$strConfigImport_csv_replace_name = __('Replace table data with file');
 $strConfigImport_csv_terminated_name = __('Columns terminated with');
 $strConfigImport_format_desc = __(
     'Default format; be aware that this list depends on location (database, table) '
@@ -346,8 +340,7 @@ $strConfigImport_ldi_enclosed_name = __('Columns enclosed with');
 $strConfigImport_ldi_escaped_name = __('Columns escaped with');
 $strConfigImport_ldi_ignore_name = __('Do not abort on INSERT error');
 $strConfigImport_ldi_local_option_name = __('Use LOCAL keyword');
-$strConfigImport_ldi_replace_name = __('Add ON DUPLICATE KEY UPDATE');
-$strConfigImport_ldi_replace_desc = __('Update data when duplicate keys found on import');
+$strConfigImport_ldi_replace_name = __('Replace table data with file');
 $strConfigImport_ldi_terminated_name = __('Columns terminated with');
 $strConfigImport_ods_col_names_name = __('Column names in first row');
 $strConfigImport_ods_empty_rows_name = __('Do not import empty rows');
@@ -423,10 +416,6 @@ $strConfigMemoryLimit_desc = __(
     . '([kbd]0[/kbd] for no limit).'
 );
 $strConfigMemoryLimit_name = __('Memory limit');
-$strConfigShowDatabasesNavigationAsTree_desc = __('In the navigation panel, replaces the database tree with a selector');
-$strConfigShowDatabasesNavigationAsTree_name = __(
-    'Show databases navigation as tree'
-);
 $strConfigNavigationLinkWithMainPanel_desc = __('Link with main panel by highlighting the current database or table.');
 $strConfigNavigationLinkWithMainPanel_name = __('Link with main panel');
 $strConfigNavigationDisplayLogo_desc = __('Show logo in navigation panel.');
@@ -443,9 +432,6 @@ $strConfigNavigationDisplayServers_desc
     = __('Display server choice at the top of the navigation panel.');
 $strConfigNavigationDisplayServers_name = __('Display servers selection');
 $strConfigNavigationTreeDefaultTabTable_name = __('Target for quick access icon');
-$strConfigNavigationTreeDefaultTabTable2_name = __(
-    'Target for second quick access icon'
-);
 $strConfigNavigationTreeDisplayItemFilterMinimum_desc = __(
     'Defines the minimum number of items (tables, views, routines and events) to '
     . 'display a filter box.'
@@ -455,7 +441,7 @@ $strConfigNavigationTreeDisplayItemFilterMinimum_name
 $strConfigNavigationTreeDisplayDbFilterMinimum_name
     = __('Minimum number of databases to display the database filter box');
 $strConfigNavigationTreeEnableGrouping_desc = __(
-    'Group items in the navigation tree (determined by the separator defined in the Databases and Tables tabs above).'
+    'Group items in the navigation tree (determined by the separator defined below).'
 );
 $strConfigNavigationTreeEnableGrouping_name = __('Group items in the tree');
 $strConfigNavigationTreeDbSeparator_desc
@@ -468,10 +454,10 @@ $strConfigNavigationTreeTableLevel_name = __('Maximum table tree depth');
 $strConfigNavigationTreePointerEnable_desc
     = __('Highlight server under the mouse cursor.');
 $strConfigNavigationTreePointerEnable_name = __('Enable highlighting');
-$strConfigNavigationTreeEnableExpansion_desc
-    = __('Whether to offer the possibility of tree expansion in the navigation panel.');
-$strConfigNavigationTreeEnableExpansion_name
-    = __('Enable navigation tree expansion');
+$strConfigNavigationTreeDisableDatabaseExpansion_desc
+    = __('Whether to disable the possibility of database expansion or not.');
+$strConfigNavigationTreeDisableDatabaseExpansion_name
+    = __('Disable database expansion');
 $strConfigNumRecentTables_desc
     = __('Maximum number of recently used tables; set 0 to disable.');
 $strConfigNumFavoriteTables_desc
@@ -542,8 +528,6 @@ $strConfigRepeatCells_desc
 $strConfigRepeatCells_name = __('Repeat headers');
 $strConfigRestoreDefaultValue = __('Restore default value');
 $strConfigGridEditing_name = __('Grid editing: trigger action');
-$strConfigRelationalDisplay_name = __('Relational display');
-$strConfigRelationalDisplay_desc = __('For display Options');
 $strConfigSaveCellsAtOnce_name = __('Grid editing: save all edited cells at once');
 $strConfigSaveDir_desc = __('Directory where exports can be saved on server.');
 $strConfigSaveDir_name = __('Save directory');
@@ -553,8 +537,6 @@ $strConfigServers_AllowDeny_rules_desc = __('Leave blank for defaults.');
 $strConfigServers_AllowDeny_rules_name = __('Host authorization rules');
 $strConfigServers_AllowNoPassword_name = __('Allow logins without a password');
 $strConfigServers_AllowRoot_name = __('Allow root login');
-$strConfigServers_SessionTimeZone_name = __('Session timezone');
-$strConfigServers_SessionTimeZone_desc = __('Sets the effective timezone; possibly different than the one from your database server');
 $strConfigServers_auth_http_realm_desc
     = __('HTTP Basic Auth Realm name to display when doing HTTP Auth.');
 $strConfigServers_auth_http_realm_name = __('HTTP Realm');
@@ -743,6 +725,8 @@ $strConfigShowDbStructureLastUpdate_desc = __('Show or hide a column displaying 
 $strConfigShowDbStructureLastUpdate_name = __('Show Last update timestamp');
 $strConfigShowDbStructureLastCheck_desc = __('Show or hide a column displaying the Last check timestamp for all tables.');
 $strConfigShowDbStructureLastCheck_name = __('Show Last check timestamp');
+$strConfigShowDisplayDirection_desc = __('Defines whether or not type display direction option is shown when browsing a table.');
+$strConfigShowDisplayDirection_name = __('Show display direction');
 $strConfigShowFieldTypesInDataEditView_desc = __('Defines whether or not type fields should be initially displayed in edit/insert mode.');
 $strConfigShowFieldTypesInDataEditView_name = __('Show field types');
 $strConfigShowFunctionFields_desc = __('Display the function fields in edit/insert mode.');
@@ -766,10 +750,6 @@ $strConfigSQLQuery_Refresh_name = __('Refresh');
 $strConfigSQLQuery_ShowAsPHP_name = __('Create PHP Code');
 $strConfigSuhosinDisableWarning_desc = __('A warning is displayed on the main page if Suhosin is detected.');
 $strConfigSuhosinDisableWarning_name = __('Suhosin warning');
-$strConfigLoginCookieValidityDisableWarning_desc = __('Disable the default warning that is displayed on the main page if the value of the PHP setting session.gc_maxlifetime is less than the value of `LoginCookieValidity`.');
-$strConfigLoginCookieValidityDisableWarning_name = __(
-    'Login cookie validity warning'
-);
 $strConfigTextareaCols_desc = __('Textarea size (columns) in edit mode, this value will be emphasized for SQL query textareas (*2) and for query window (*1.25).');
 $strConfigTextareaCols_name = __('Textarea columns');
 $strConfigTextareaRows_desc = __('Textarea size (rows) in edit mode, this value will be emphasized for SQL query textareas (*2) and for query window (*1.25).');

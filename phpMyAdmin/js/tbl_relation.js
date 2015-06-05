@@ -17,13 +17,13 @@ function show_hide_clauses($thisDropdown)
 /**
  * Sets dropdown options to values
  */
-function setDropdownValues($dropdown, values, selectedValue) {
+function setDropdownValues($dropdown, values) {
     $dropdown.empty();
     var optionsAsString = '';
     // add an empty string to the beginning for empty selection
     values.unshift('');
     $.each(values, function () {
-        optionsAsString += "<option value='" + this + "'" + (selectedValue == this ? " selected='selected'" : "") + ">" + this + "</option>";
+        optionsAsString += "<option value='" + this + "'>" + this + "</option>";
     });
     $dropdown.append($(optionsAsString));
 }
@@ -39,12 +39,10 @@ function getDropdownValues($dropdown) {
     var foreign = '';
     // if the changed dropdown is for foreign key constraints
     if ($dropdown.is('select[name^="destination_foreign"]')) {
-        $databaseDd = $dropdown.parent().parent().parent().find('select[name^="destination_foreign_db"]');
         $tableDd  = $dropdown.parent().parent().parent().find('select[name^="destination_foreign_table"]');
         $columnDd = $dropdown.parent().parent().parent().find('select[name^="destination_foreign_column"]');
         foreign = '_foreign';
     } else { // internal relations
-        $databaseDd = $dropdown.parent().find('select[name^="destination_db"]');
         $tableDd  = $dropdown.parent().find('select[name^="destination_table"]');
         $columnDd = $dropdown.parent().find('select[name^="destination_column"]');
     }
@@ -59,7 +57,8 @@ function getDropdownValues($dropdown) {
             return;
         }
     } else { // if a table selector
-        foreignDb = $databaseDd.val();
+        foreignDb = $dropdown.parent().parent().parent()
+            .find('select[name^="destination' + foreign + '_db"]').val();
         foreignTable = $dropdown.val();
          // if no table is selected empty the column dropdown
         if (foreignTable === '') {
@@ -95,13 +94,7 @@ function getDropdownValues($dropdown) {
                     setDropdownValues($columnDd, []);
                 } else { // if a table selector
                     // set values for the column dropdown
-                    var primary = null;
-                    if (typeof data.primary !== 'undefined'
-                        && 1 === data.primary.length
-                    ) {
-                        primary = data.primary[0];
-                    }
-                    setDropdownValues($columnDd, data.columns, primary);
+                    setDropdownValues($columnDd, data.columns);
                 }
             } else {
                 PMA_ajaxShowMessage(data.error, false);
