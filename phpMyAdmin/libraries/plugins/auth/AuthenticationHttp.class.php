@@ -22,7 +22,7 @@ require_once 'libraries/plugins/AuthenticationPlugin.class.php';
 class AuthenticationHttp extends AuthenticationPlugin
 {
     /**
-     * Displays authentication form and redirect as necessary
+     * Displays authentication form
      *
      * @global  string    the font face to use in case of failure
      * @global  string    the default font size to use in case of failure
@@ -31,28 +31,6 @@ class AuthenticationHttp extends AuthenticationPlugin
      * @return boolean   always true (no return indeed)
      */
     public function auth()
-    {
-        $response = PMA_Response::getInstance();
-        if ($response->isAjax()) {
-            $response->isSuccess(false);
-            // reload_flag removes the token parameter from the URL and reloads
-            $response->addJSON('reload_flag', '1');
-            if (defined('TESTSUITE')) {
-                return true;
-            } else {
-                exit;
-            }
-        }
-
-        return $this->authForm();
-    }
-
-    /**
-     * Displays authentication form
-     *
-     * @return boolean
-     */
-    public function authForm()
     {
         /* Perform logout to custom URL */
         if (! empty($_REQUEST['old_usr'])
@@ -89,7 +67,7 @@ class AuthenticationHttp extends AuthenticationPlugin
         $response->getFooter()->setMinimal();
         $header = $response->getHeader();
         $header->setTitle(__('Access denied!'));
-        $header->disableMenuAndConsole();
+        $header->disableMenu();
         $header->setBodyId('loginform');
 
         $response->addHTML('<h1>');
@@ -136,10 +114,6 @@ class AuthenticationHttp extends AuthenticationPlugin
     public function authCheck()
     {
         global $PHP_AUTH_USER, $PHP_AUTH_PW;
-
-        if ($GLOBALS['token_provided'] && $GLOBALS['token_mismatch']) {
-            return false;
-        }
 
         // Grabs the $PHP_AUTH_USER variable whatever are the values of the
         // 'register_globals' and the 'variables_order' directives
@@ -271,20 +245,21 @@ class AuthenticationHttp extends AuthenticationPlugin
         if ($error && $GLOBALS['errno'] != 1045) {
             PMA_fatalError($error);
         } else {
-            $this->authForm();
+            $this->auth();
             return true;
         }
     }
 
     /**
-     * Callback when user changes password.
+     * This method is called when any PluginManager to which the observer
+     * is attached calls PluginManager::notify()
      *
-     * @param string $password New password to set
+     * @param SplSubject $subject The PluginManager notifying the observer
+     *                            of an update.
      *
-     * @return array Additional URL parameters.
+     * @return void
      */
-    public function handlePasswordChange($password)
+    public function update (SplSubject $subject)
     {
-        return array('old_usr' => 'relog');
     }
 }

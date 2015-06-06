@@ -89,7 +89,7 @@ class PMA_Footer
      *
      * @return string
      */
-    public function getDebugMessage()
+    private function _getDebugMessage()
     {
         $retval = '';
         if (! empty($_SESSION['debug'])) {
@@ -120,11 +120,11 @@ class PMA_Footer
     /**
      * Returns the url of the current page
      *
-     * @param string|null $encode See PMA_URL_getCommon()
+     * @param mixed $encoding See PMA_URL_getCommon()
      *
      * @return string
      */
-    public function getSelfUrl($encode = 'html')
+    public function getSelfUrl($encoding = null)
     {
         $db = ! empty($GLOBALS['db']) ? $GLOBALS['db'] : '';
         $table = ! empty($GLOBALS['table']) ? $GLOBALS['table'] : '';
@@ -141,21 +141,17 @@ class PMA_Footer
         ) {
             $params['viewing_mode'] = $_REQUEST['viewing_mode'];
         }
-        /*
-         * @todo    coming from server_privileges.php, here $db is not set,
-         *          add the following condition below when that is fixed
-         *          && $_REQUEST['checkprivsdb'] == $db
-         */
         if (isset($_REQUEST['checkprivsdb'])
+            //TODO: coming from server_privileges.php, here $db is not set,
+            //uncomment below line when that is fixed
+            //&& $_REQUEST['checkprivsdb'] == $db
         ) {
             $params['checkprivsdb'] = $_REQUEST['checkprivsdb'];
         }
-        /*
-         * @todo    coming from server_privileges.php, here $table is not set,
-         *          add the following condition below when that is fixed
-         *          && $_REQUEST['checkprivstable'] == $table
-         */
         if (isset($_REQUEST['checkprivstable'])
+            //TODO: coming from server_privileges.php, here $table is not set,
+            //uncomment below line when that is fixed
+            //&& $_REQUEST['checkprivstable'] == $table
         ) {
             $params['checkprivstable'] = $_REQUEST['checkprivstable'];
         }
@@ -166,7 +162,7 @@ class PMA_Footer
         }
         return basename(PMA_getenv('SCRIPT_NAME')) . PMA_URL_getCommon(
             $params,
-            $encode
+            $encoding
         );
     }
 
@@ -203,17 +199,12 @@ class PMA_Footer
      */
     public function getErrorMessages()
     {
-        $retval = '<div class="clearfloat" id="pma_errors">';
+        $retval = '';
         if ($GLOBALS['error_handler']->hasDisplayErrors()) {
+            $retval .= '<div class="clearfloat" id="pma_errors">';
             $retval .= $GLOBALS['error_handler']->getDispErrors();
+            $retval .= '</div>';
         }
-        $retval .= '</div>';
-
-        /**
-         * Report php errors
-         */
-        $GLOBALS['error_handler']->reportErrors();
-
         return $retval;
     }
 
@@ -249,9 +240,9 @@ class PMA_Footer
 
     /**
      * Set the ajax flag to indicate whether
-     * we are servicing an ajax request
+     * we are sevicing an ajax request
      *
-     * @param bool $isAjax Whether we are servicing an ajax request
+     * @param bool $isAjax Whether we are sevicing an ajax request
      *
      * @return void
      */
@@ -323,7 +314,7 @@ class PMA_Footer
                     $url = $this->getSelfUrl();
                     $retval .= $this->_getSelfLink($url);
                 }
-                $retval .= $this->getDebugMessage();
+                $retval .= $this->_getDebugMessage();
                 $retval .= $this->getErrorMessages();
                 $retval .= $this->_scripts->getDisplay();
                 if ($GLOBALS['cfg']['DBG']['demo']) {

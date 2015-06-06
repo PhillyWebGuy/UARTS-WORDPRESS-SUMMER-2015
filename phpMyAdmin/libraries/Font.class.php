@@ -19,10 +19,12 @@ class PMA_Font
     /**
      * Get list with characters and the corresponding width modifiers.
      *
+     * @param string $font name of the font like Arial,sans-serif etc
+     *
      * @return array with characters and corresponding width modifier
      * @access public
      */
-    public static function getCharLists()
+    public static function getCharLists($font)
     {
         // list of characters and their width modifiers
         $charLists = array();
@@ -94,7 +96,7 @@ class PMA_Font
             || !isset($charLists[0]["chars"]) || !is_array($charLists[0]["chars"])
             || !isset($charLists[0]["modifier"])
         ) {
-            $charLists = self::getCharLists();
+            $charLists = self::getCharLists($font);
         }
 
         /*
@@ -103,18 +105,17 @@ class PMA_Font
         $count = 0;
 
         foreach ($charLists as $charList) {
-            $count += ((/*overload*/mb_strlen($text)
-                - /*overload*/mb_strlen(str_replace($charList["chars"], "", $text))
+            $count += ((strlen($text)
+                - strlen(str_replace($charList["chars"], "", $text))
                 ) * $charList["modifier"]);
         }
 
         $text  = str_replace(" ", "", $text);//remove the " "'s
         //all other chars
-        $count = $count
-            + (/*overload*/mb_strlen(preg_replace("/[a-z0-9]/i", "", $text)) * 0.3);
+        $count = $count + (strlen(preg_replace("/[a-z0-9]/i", "", $text)) * 0.3);
 
         $modifier = 1;
-        $font = /*overload*/mb_strtolower($font);
+        $font = strtolower($font);
         switch ($font) {
         /*
          * no modifier for arial and sans-serif
@@ -123,7 +124,7 @@ class PMA_Font
         case 'sans-serif':
             break;
         /*
-         * .92 modifier for time, serif, brushscriptstd, and californian fb
+         * .92 modifer for time, serif, brushscriptstd, and californian fb
          */
         case 'times':
         case 'serif':
@@ -138,8 +139,8 @@ class PMA_Font
             $modifier = 1.23;
             break;
         }
-        $textWidth = $count * $fontSize;
-        return (int)ceil($textWidth * $modifier);
+        $textWidth = $count*$fontSize;
+        return ceil($textWidth*$modifier);
     }
 }
 ?>

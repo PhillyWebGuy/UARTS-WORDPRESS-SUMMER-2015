@@ -12,65 +12,23 @@
 require_once 'libraries/common.inc.php';
 require_once 'libraries/sql.lib.php';
 require_once 'libraries/bookmark.lib.php';
-require_once 'libraries/Console.class.php';
 //require_once 'libraries/display_import_functions.lib.php';
 
 if (isset($_REQUEST['show_as_php'])) {
     $GLOBALS['show_as_php'] = $_REQUEST['show_as_php'];
 }
 
-// Import functions.
-require_once 'libraries/import.lib.php';
-
-// If there is a request to 'Simulate DML'.
-if (isset($_REQUEST['simulate_dml'])) {
-    PMA_handleSimulateDMLRequest();
-    exit;
-}
-
-// If it's a refresh console bookmarks request
-if (isset($_REQUEST['console_bookmark_refresh'])) {
-    $response = PMA_Response::getInstance();
-    $response->addJSON(
-        'console_message_bookmark', PMA_Console::getBookmarkContent()
-    );
-    exit;
-}
-// If it's a console bookmark add request
-if (isset($_REQUEST['console_bookmark_add'])) {
-    $response = PMA_Response::getInstance();
-    if (isset($_REQUEST['label']) && isset($_REQUEST['db'])
-        && isset($_REQUEST['bookmark_query']) && isset($_REQUEST['shared'])
-    ) {
-        $cfgBookmark = PMA_Bookmark_getParams();
-        $bookmarkFields = array(
-            'bkm_database' => $_REQUEST['db'],
-            'bkm_user'  => $cfgBookmark['user'],
-            'bkm_sql_query' => urlencode($_REQUEST['bookmark_query']),
-            'bkm_label' => $_REQUEST['label']
-        );
-        $isShared = ($_REQUEST['shared'] == 'true' ? true : false);
-        if (PMA_Bookmark_save($bookmarkFields, $isShared)) {
-            $response->addJSON('message', __('Succeeded'));
-            $response->addJSON('data', $bookmarkFields);
-            $response->addJSON('isShared', $isShared);
-        } else {
-            $response->addJSON('message', __('Failed'));
-        }
-        die();
-    } else {
-        $response->addJSON('message', __('Incomplete params'));
-        die();
-    }
-}
-
 /**
  * Sets globals from $_POST
  */
 $post_params = array(
+    'action_bookmark',
+    'allow_interrupt',
     'bkm_label',
+    'bookmark_variable',
     'charset_of_file',
     'format',
+    'id_bookmark',
     'import_type',
     'is_js_confirmed',
     'MAX_FILE_SIZE',
@@ -93,7 +51,7 @@ $_SESSION['Import_message']['go_back_url'] = null;
 // default values
 $GLOBALS['reload'] = false;
 
-// Use to identify current cycle is executing
+// Use to identify curren cycle is executing
 // a multiquery statement or stored routine
 if (!isset($_SESSION['is_multi_query'])) {
     $_SESSION['is_multi_query'] = false;
@@ -106,12 +64,6 @@ if (! empty($sql_query)) {
     $import_text = $sql_query;
     $import_type = 'query';
     $format = 'sql';
-    $_SESSION['sql_from_query_box'] = true;
-
-    // If there is a request to ROLLBACK when finished.
-    if (isset($_REQUEST['rollback_query'])) {
-        PMA_handleRollbackRequest($import_text);
-    }
 
     // refresh navigation and main panels
     if (preg_match('/^(DROP)\s+(VIEW|TABLE|DATABASE|SCHEMA)\s+/i', $sql_query)) {
@@ -123,7 +75,7 @@ if (! empty($sql_query)) {
         '/^(CREATE|ALTER)\s+(VIEW|TABLE|DATABASE|SCHEMA)\s+/i',
         $sql_query
     )) {
-        $ajax_reload = array('reload' => true);
+        $ajax_reload['reload'] = true;
     }
 
     // do a dynamic reload if table is RENAMED
@@ -133,8 +85,8 @@ if (! empty($sql_query)) {
         $sql_query,
         $rename_table_names
     )) {
-        $ajax_reload = array('reload' => true);
         $ajax_reload['table_name'] = PMA_Util::unQuote($rename_table_names[2]);
+        $ajax_reload['reload'] = true;
     }
 
     $sql_query = '';
@@ -150,7 +102,7 @@ if (! empty($sql_query)) {
     $import_type = 'queryfile';
     $format = 'sql';
     unset($sql_file);
-} elseif (! empty($_REQUEST['id_bookmark'])) {
+} elseif (! empty($id_bookmark)) {
     // run bookmark
     $import_type = 'query';
     $format = 'sql';
@@ -158,6 +110,7 @@ if (! empty($sql_query)) {
 
 // If we didn't get any parameters, either user called this directly, or
 // upload limit has been reached, let's assume the second possibility.
+;
 if ($_POST == array() && $_GET == array()) {
     $message = PMA_Message::error(
         __('You probably tried to upload a file that is too large. Please refer to %sdocumentation%s for a workaround for this limit.')
@@ -167,16 +120,10 @@ if ($_POST == array() && $_GET == array()) {
 
     // so we can obtain the message
     $_SESSION['Import_message']['message'] = $message->getDisplay();
-    $_SESSION['Import_message']['go_back_url'] = $GLOBALS['goto'];
+    $_SESSION['Import_message']['go_back_url'] = $goto;
 
     $message->display();
     exit; // the footer is displayed automatically
-}
-
-// Add console message id to response output
-if (isset($_POST['console_message_id'])) {
-    $response = PMA_Response::getInstance();
-    $response->addJSON('console_message_id', $_POST['console_message_id']);
 }
 
 /**
@@ -206,52 +153,54 @@ $post_patterns = array(
     '/^force_file_/',
     '/^' . $format . '_/'
 );
-
-PMA_setPostAsGlobal($post_patterns);
+foreach (array_keys($_POST) as $post_key) {
+    foreach ($post_patterns as $one_post_pattern) {
+        if (preg_match($one_post_pattern, $post_key)) {
+            $GLOBALS[$post_key] = $_POST[$post_key];
+        }
+    }
+}
 
 // Check needed parameters
 PMA_Util::checkParameters(array('import_type', 'format'));
 
 // We don't want anything special in format
 $format = PMA_securePath($format);
-/** @var PMA_String $pmaString */
-$pmaString = $GLOBALS['PMA_String'];
+
+// Import functions
+require_once 'libraries/import.lib.php';
 
 // Create error and goto url
 if ($import_type == 'table') {
-    $err_url = 'tbl_import.php' . PMA_URL_getCommon(
-        array(
-            'db' => $db, 'table' => $table
-        )
-    );
+    $err_url = 'tbl_import.php?' . PMA_URL_getCommon($db, $table);
     $_SESSION['Import_message']['go_back_url'] = $err_url;
     $goto = 'tbl_import.php';
 } elseif ($import_type == 'database') {
-    $err_url = 'db_import.php' . PMA_URL_getCommon(array('db' => $db));
+    $err_url = 'db_import.php?' . PMA_URL_getCommon($db);
     $_SESSION['Import_message']['go_back_url'] = $err_url;
     $goto = 'db_import.php';
 } elseif ($import_type == 'server') {
-    $err_url = 'server_import.php' . PMA_URL_getCommon();
+    $err_url = 'server_import.php?' . PMA_URL_getCommon();
     $_SESSION['Import_message']['go_back_url'] = $err_url;
     $goto = 'server_import.php';
 } else {
     if (empty($goto) || !preg_match('@^(server|db|tbl)(_[a-z]*)*\.php$@i', $goto)) {
-        if (/*overload*/mb_strlen($table) && /*overload*/mb_strlen($db)) {
+        if (strlen($table) && strlen($db)) {
             $goto = 'tbl_structure.php';
-        } elseif (/*overload*/mb_strlen($db)) {
+        } elseif (strlen($db)) {
             $goto = 'db_structure.php';
         } else {
             $goto = 'server_sql.php';
         }
     }
-    if (/*overload*/mb_strlen($table) && /*overload*/mb_strlen($db)) {
-        $common = PMA_URL_getCommon(array('db' => $db, 'table' => $table));
-    } elseif (/*overload*/mb_strlen($db)) {
-        $common = PMA_URL_getCommon(array('db' => $db));
+    if (strlen($table) && strlen($db)) {
+        $common = PMA_URL_getCommon($db, $table);
+    } elseif (strlen($db)) {
+        $common = PMA_URL_getCommon($db);
     } else {
         $common = PMA_URL_getCommon();
     }
-    $err_url  = $goto . $common
+    $err_url  = $goto . '?' . $common
         . (preg_match('@^tbl_[a-z]*\.php$@', $goto)
             ? '&amp;table=' . htmlspecialchars($table)
             : '');
@@ -264,7 +213,7 @@ if (basename($_SERVER['SCRIPT_NAME']) === 'import.php') {
 }
 
 
-if (/*overload*/mb_strlen($db)) {
+if (strlen($db)) {
     $GLOBALS['dbi']->selectDb($db);
 }
 
@@ -274,7 +223,7 @@ if (! empty($cfg['MemoryLimit'])) {
 }
 
 $timestamp = time();
-if (isset($_REQUEST['allow_interrupt'])) {
+if (isset($allow_interrupt)) {
     $maximum_time = ini_get('max_execution_time');
 } else {
     $maximum_time = 0;
@@ -298,21 +247,21 @@ $reset_charset = false;
 $bookmark_created = false;
 
 // Bookmark Support: get a query back from bookmark if required
-if (! empty($_REQUEST['id_bookmark'])) {
-    $id_bookmark = (int)$_REQUEST['id_bookmark'];
+if (! empty($id_bookmark)) {
+    $id_bookmark = (int)$id_bookmark;
     include_once 'libraries/bookmark.lib.php';
-    switch ($_REQUEST['action_bookmark']) {
+    switch ($action_bookmark) {
     case 0: // bookmarked query that have to be run
         $import_text = PMA_Bookmark_get(
             $db,
             $id_bookmark,
             'id',
-            isset($_REQUEST['action_bookmark_all'])
+            isset($action_bookmark_all)
         );
-        if (! empty($_REQUEST['bookmark_variable'])) {
+        if (isset($bookmark_variable) && ! empty($bookmark_variable)) {
             $import_text = preg_replace(
                 '|/\*(.*)\[VARIABLE\](.*)\*/|imsU',
-                '${1}' . PMA_Util::sqlAddSlashes($_REQUEST['bookmark_variable']) . '${2}',
+                '${1}' . PMA_Util::sqlAddSlashes($bookmark_variable) . '${2}',
                 $import_text
             );
         }
@@ -331,9 +280,6 @@ if (! empty($_REQUEST['id_bookmark'])) {
             $import_text
         )
         ) {
-            if (! isset($ajax_reload)) {
-                $ajax_reload = array();
-            }
             $ajax_reload['reload'] = true;
         }
         break;
@@ -345,7 +291,7 @@ if (! empty($_REQUEST['id_bookmark'])) {
             $response->isSuccess($message->isSuccess());
             $response->addJSON('message', $message);
             $response->addJSON('sql_query', $import_text);
-            $response->addJSON('action_bookmark', $_REQUEST['action_bookmark']);
+            $response->addJSON('action_bookmark', $action_bookmark);
             exit;
         } else {
             $run_query = false;
@@ -359,7 +305,7 @@ if (! empty($_REQUEST['id_bookmark'])) {
             $response = PMA_Response::getInstance();
             $response->isSuccess($message->isSuccess());
             $response->addJSON('message', $message);
-            $response->addJSON('action_bookmark', $_REQUEST['action_bookmark']);
+            $response->addJSON('action_bookmark', $action_bookmark);
             $response->addJSON('id_bookmark', $id_bookmark);
             exit;
         } else {
@@ -388,12 +334,11 @@ if ($memory_limit == -1) {
 }
 
 // Calculate value of the limit
-$memoryUnit = /*overload*/mb_strtolower(substr($memory_limit, -1));
-if ('m' == $memoryUnit) {
+if (strtolower(substr($memory_limit, -1)) == 'm') {
     $memory_limit = (int)substr($memory_limit, 0, -1) * 1024 * 1024;
-} elseif ('k' == $memoryUnit) {
+} elseif (strtolower(substr($memory_limit, -1)) == 'k') {
     $memory_limit = (int)substr($memory_limit, 0, -1) * 1024;
-} elseif ('g' == $memoryUnit) {
+} elseif (strtolower(substr($memory_limit, -1)) == 'g') {
     $memory_limit = (int)substr($memory_limit, 0, -1) * 1024 * 1024 * 1024;
 } else {
     $memory_limit = (int)$memory_limit;
@@ -465,63 +410,63 @@ if ($import_file != 'none' && ! $error) {
     $compression = PMA_detectCompression($import_file);
     if ($compression === false) {
         $message = PMA_Message::error(__('File could not be read!'));
-        PMA_stopImport($message); //Contains an 'exit'
-    }
-
-    switch ($compression) {
-    case 'application/bzip2':
-        if ($cfg['BZipDump'] && @function_exists('bzopen')) {
-            $import_handle = @bzopen($import_file, 'r');
-        } else {
-            $message = PMA_Message::error(
-                __('You attempted to load file with unsupported compression (%s). Either support for it is not implemented or disabled by your configuration.')
-            );
-            $message->addParam($compression);
-            PMA_stopImport($message);
-        }
-        break;
-    case 'application/gzip':
-        if ($cfg['GZipDump'] && @function_exists('gzopen')) {
-            $import_handle = @gzopen($import_file, 'r');
-        } else {
-            $message = PMA_Message::error(
-                __('You attempted to load file with unsupported compression (%s). Either support for it is not implemented or disabled by your configuration.')
-            );
-            $message->addParam($compression);
-            PMA_stopImport($message);
-        }
-        break;
-    case 'application/zip':
-        if ($cfg['ZipDump'] && @function_exists('zip_open')) {
-            /**
-             * Load interface for zip extension.
-             */
-            include_once 'libraries/zip_extension.lib.php';
-            $zipResult = PMA_getZipContents($import_file);
-            if (! empty($zipResult['error'])) {
-                $message = PMA_Message::rawError($zipResult['error']);
-                PMA_stopImport($message);
-            } else {
-                $import_text = $zipResult['data'];
-            }
-        } else {
-            $message = PMA_Message::error(
-                __('You attempted to load file with unsupported compression (%s). Either support for it is not implemented or disabled by your configuration.')
-            );
-            $message->addParam($compression);
-            PMA_stopImport($message);
-        }
-        break;
-    case 'none':
-        $import_handle = @fopen($import_file, 'r');
-        break;
-    default:
-        $message = PMA_Message::error(
-            __('You attempted to load file with unsupported compression (%s). Either support for it is not implemented or disabled by your configuration.')
-        );
-        $message->addParam($compression);
         PMA_stopImport($message);
-        break;
+    } else {
+        switch ($compression) {
+        case 'application/bzip2':
+            if ($cfg['BZipDump'] && @function_exists('bzopen')) {
+                $import_handle = @bzopen($import_file, 'r');
+            } else {
+                $message = PMA_Message::error(
+                    __('You attempted to load file with unsupported compression (%s). Either support for it is not implemented or disabled by your configuration.')
+                );
+                $message->addParam($compression);
+                PMA_stopImport($message);
+            }
+            break;
+        case 'application/gzip':
+            if ($cfg['GZipDump'] && @function_exists('gzopen')) {
+                $import_handle = @gzopen($import_file, 'r');
+            } else {
+                $message = PMA_Message::error(
+                    __('You attempted to load file with unsupported compression (%s). Either support for it is not implemented or disabled by your configuration.')
+                );
+                $message->addParam($compression);
+                PMA_stopImport($message);
+            }
+            break;
+        case 'application/zip':
+            if ($cfg['ZipDump'] && @function_exists('zip_open')) {
+                /**
+                 * Load interface for zip extension.
+                 */
+                include_once 'libraries/zip_extension.lib.php';
+                $zipResult = PMA_getZipContents($import_file);
+                if (! empty($zipResult['error'])) {
+                    $message = PMA_Message::rawError($zipResult['error']);
+                    PMA_stopImport($message);
+                } else {
+                    $import_text = $zipResult['data'];
+                }
+            } else {
+                $message = PMA_Message::error(
+                    __('You attempted to load file with unsupported compression (%s). Either support for it is not implemented or disabled by your configuration.')
+                );
+                $message->addParam($compression);
+                PMA_stopImport($message);
+            }
+            break;
+        case 'none':
+            $import_handle = @fopen($import_file, 'r');
+            break;
+        default:
+            $message = PMA_Message::error(
+                __('You attempted to load file with unsupported compression (%s). Either support for it is not implemented or disabled by your configuration.')
+            );
+            $message->addParam($compression);
+            PMA_stopImport($message);
+            break;
+        }
     }
     // use isset() because zip compression type does not use a handle
     if (! $error && isset($import_handle) && $import_handle === false) {
@@ -545,15 +490,12 @@ if ($GLOBALS['PMA_recoding_engine'] != PMA_CHARSET_NONE && isset($charset_of_fil
     if ($charset_of_file != 'utf-8') {
         $charset_conversion = true;
     }
-} elseif (isset($charset_of_file) && $charset_of_file != 'utf-8') {
+} elseif (isset($charset_of_file) && $charset_of_file != 'utf8') {
     if (PMA_DRIZZLE) {
         // Drizzle doesn't support other character sets,
         // so we can't fallback to SET NAMES - throw an error
         $message = PMA_Message::error(
-            __(
-                'Cannot convert file\'s character'
-                . ' set without character set conversion library!'
-            )
+            __('Cannot convert file\'s character set without character set conversion library!')
         );
         PMA_stopImport($message);
     } else {
@@ -581,7 +523,7 @@ if (! $error && isset($skip)) {
 $sql_data = array('valid_sql' => array(), 'valid_queries' => 0);
 
 if (! $error) {
-    // Check for file existence
+    // Check for file existance
     include_once "libraries/plugin_interface.lib.php";
     $import_plugin = PMA_getPlugin(
         "import",
@@ -600,7 +542,7 @@ if (! $error) {
     }
 }
 
-if (! empty($import_handle)) {
+if (false !== $import_handle && null !== $import_handle) {
     fclose($import_handle);
 }
 
@@ -618,11 +560,11 @@ if ($reset_charset) {
 }
 
 // Show correct message
-if (! empty($id_bookmark) && $_REQUEST['action_bookmark'] == 2) {
+if (! empty($id_bookmark) && $action_bookmark == 2) {
     $message = PMA_Message::success(__('The bookmark has been deleted.'));
     $display_query = $import_text;
     $error = false; // unset error marker, it was used just to skip processing
-} elseif (! empty($id_bookmark) && $_REQUEST['action_bookmark'] == 1) {
+} elseif (! empty($id_bookmark) && $action_bookmark == 1) {
     $message = PMA_Message::notice(__('Showing bookmark'));
 } elseif ($bookmark_created) {
     $special_message = '[br]'  . sprintf(
@@ -656,18 +598,11 @@ if (! empty($id_bookmark) && $_REQUEST['action_bookmark'] == 2) {
 // Did we hit timeout? Tell it user.
 if ($timeout_passed) {
     $message = PMA_Message::error(
-        __(
-            'Script timeout passed, if you want to finish import,'
-            . ' please resubmit same file and import will resume.'
-        )
+        __('Script timeout passed, if you want to finish import, please resubmit same file and import will resume.')
     );
     if ($offset == 0 || (isset($original_skip) && $original_skip == $offset)) {
         $message->addString(
-            __(
-                'However on last run no data has been parsed,'
-                . ' this usually means phpMyAdmin won\'t be able to'
-                . ' finish this import unless you increase php time limits.'
-            )
+            __('However on last run no data has been parsed, this usually means phpMyAdmin won\'t be able to finish this import unless you increase php time limits.')
         );
     }
 }
@@ -681,8 +616,7 @@ if (isset($message)) {
 // in case of a query typed in the query window
 // (but if the query is too large, in case of an imported file, the parser
 //  can choke on it so avoid parsing)
-$sqlLength = /*overload*/mb_strlen($sql_query);
-if ($sqlLength <= $GLOBALS['cfg']['MaxCharactersInDisplayedSQL']) {
+if (strlen($sql_query) <= $GLOBALS['cfg']['MaxCharactersInDisplayedSQL']) {
     include_once 'libraries/parse_analyze.inc.php';
 }
 
@@ -696,31 +630,25 @@ if (isset($my_die)) {
 }
 
 if ($go_sql) {
-
     // parse sql query
     include_once 'libraries/parse_analyze.inc.php';
 
+    if (isset($ajax_reload) && $ajax_reload['reload'] === true) {
+        $response = PMA_Response::getInstance();
+        $response->addJSON('ajax_reload', $ajax_reload);
+    }
     PMA_executeQueryAndSendQueryResponse(
         $analyzed_sql_results, false, $db, $table, null, $import_text, null,
         $analyzed_sql_results['is_affected'], null,
-        null, null, $sql_data, $goto, $pmaThemeImage, null, null, null, $sql_query,
+        null, null, null, $goto, $pmaThemeImage, null, null, null, $sql_query,
         null, null
     );
-
-    if (!isset($ajax_reload)) {
-        $ajax_reload = array();
-    }
-    $ajax_reload['table_name'] = $table;
-
-    $response = PMA_Response::getInstance();
-    $response->addJSON('ajax_reload', $ajax_reload);
 } else if ($result) {
     // Save a Bookmark with more than one queries (if Bookmark label given).
     if (! empty($_POST['bkm_label']) && ! empty($import_text)) {
-        $cfgBookmark = PMA_Bookmark_getParams();
         PMA_storeTheQueryAsBookmark(
-            $db, $cfgBookmark['user'],
-            $_REQUEST['sql_query'], $_POST['bkm_label'],
+            $db, $GLOBALS['cfg']['Bookmark']['user'],
+            $import_text, $_POST['bkm_label'],
             isset($_POST['bkm_replace']) ? $_POST['bkm_replace'] : null
         );
     }
@@ -739,10 +667,5 @@ if ($go_sql) {
 } else {
     $active_page = $goto;
     include '' . $goto;
-}
-
-// If there is request for ROLLBACK in the end.
-if (isset($_REQUEST['rollback_query'])) {
-    $GLOBALS['dbi']->query('ROLLBACK');
 }
 ?>

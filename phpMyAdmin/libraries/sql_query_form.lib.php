@@ -8,6 +8,7 @@
  * @usedby  tbl_sql.php
  * @usedby  tbl_structure.php
  * @usedby  tbl_tracking.php
+ * @usedby  querywindow.php
  * @package PhpMyAdmin
  */
 if (! defined('PHPMYADMIN')) {
@@ -28,7 +29,7 @@ require_once './libraries/bookmark.lib.php'; // used for bookmarks
  * @param boolean|string $display_tab sql|files|history|full|false
  *                                    what part to display
  *                                    false if not inside querywindow
- * @param string         $delimiter   delimiter
+ * @param string         $delimiter   delimeter
  *
  * @return string
  *
@@ -37,14 +38,20 @@ require_once './libraries/bookmark.lib.php'; // used for bookmarks
  * @usedby  tbl_sql.php
  * @usedby  tbl_structure.php
  * @usedby  tbl_tracking.php
+ * @usedby  querywindow.php
  */
 function PMA_getHtmlForSqlQueryForm(
     $query = true, $display_tab = false, $delimiter = ';'
 ) {
     $html = '';
+    // check tab to display if inside querywindow
     if (! $display_tab) {
         $display_tab = 'full';
+        $is_querywindow = false;
+    } else {
+        $is_querywindow = true;
     }
+
     // query to show
     if (true === $query) {
         $query = $GLOBALS['sql_query'];
@@ -59,11 +66,11 @@ function PMA_getHtmlForSqlQueryForm(
 
     $table  = '';
     $db     = '';
-    if (! /*overload*/mb_strlen($GLOBALS['db'])) {
+    if (! strlen($GLOBALS['db'])) {
         // prepare for server related
         $goto   = empty($GLOBALS['goto']) ?
                     'server_sql.php' : $GLOBALS['goto'];
-    } elseif (! /*overload*/mb_strlen($GLOBALS['table'])) {
+    } elseif (! strlen($GLOBALS['table'])) {
         // prepare for db related
         $db     = $GLOBALS['db'];
         $goto   = empty($GLOBALS['goto']) ?
@@ -76,10 +83,25 @@ function PMA_getHtmlForSqlQueryForm(
     }
 
     // start output
-    $html .= '<form method="post" action="import.php" ' . $enctype;
-    $html .= ' class="ajax lock-page"';
-    $html .= ' id="sqlqueryform" name="sqlform">' . "\n";
+    if ($is_querywindow) {
+        $html .= '<form method="post" id="sqlqueryform"';
+        $html .= ' action="import.php" ' . $enctype . ' name="sqlform">';
+    } else {
+        $html .= '<form method="post" action="import.php" ' . $enctype;
+        $html .= ' class="ajax"';
+        $html .= ' id="sqlqueryform" name="sqlform">' . "\n";
+    }
 
+    if ($is_querywindow) {
+        $html .= '<input type="hidden" name="focus_querywindow"'
+            . ' value="true" />' . "\n";
+        if ($display_tab != 'sql' && $display_tab != 'full') {
+            $html .= '<input type="hidden" name="sql_query"'
+                . ' value="" />' . "\n";
+            $html .= '<input type="hidden" name="show_query"'
+                . ' value="1" />' . "\n";
+        }
+    }
     $html .= '<input type="hidden" name="is_js_confirmed" value="0" />'
         . "\n" . PMA_URL_getHiddenInputs($db, $table) . "\n"
         . '<input type="hidden" name="pos" value="0" />' . "\n"
@@ -93,7 +115,7 @@ function PMA_getHtmlForSqlQueryForm(
     // display querybox
     if ($display_tab === 'full' || $display_tab === 'sql') {
         $html .= PMA_getHtmlForSqlQueryFormInsert(
-            $query, $delimiter
+            $query, $is_querywindow, $delimiter
         );
     }
 
@@ -104,8 +126,7 @@ function PMA_getHtmlForSqlQueryForm(
 
     // Bookmark Support
     if ($display_tab === 'full' || $display_tab === 'history') {
-        $cfgBookmark = PMA_Bookmark_getParams();
-        if ($cfgBookmark) {
+        if (! empty($GLOBALS['cfg']['Bookmark'])) {
             $html .= PMA_getHtmlForSqlQueryFormBookmark();
         }
     }
@@ -126,15 +147,16 @@ function PMA_getHtmlForSqlQueryForm(
 /**
  * return HTML for Sql Query Form Insert
  *
- * @param string $query     query to display in the textarea
- * @param string $delimiter default delimiter to use
+ * @param string  $query          query to display in the textarea
+ * @param boolean $is_querywindow if inside querywindow or not
+ * @param string  $delimiter      default delimiter to use
  *
  * @return string
  *
  * @usedby  PMA_getHtmlForSqlQueryForm()
  */
 function PMA_getHtmlForSqlQueryFormInsert(
-    $query = '', $delimiter = ';'
+    $query = '', $is_querywindow = false, $delimiter = ';'
 ) {
     // enable auto select text in textarea
     if ($GLOBALS['cfg']['TextareaAutoSelect']) {
@@ -143,13 +165,20 @@ function PMA_getHtmlForSqlQueryFormInsert(
         $auto_sel = '';
     }
 
-    $locking = '';
-    $height = $GLOBALS['cfg']['TextareaRows'] * 2;
+    // enable locking if inside query window
+    if ($is_querywindow) {
+        $locking = ' onkeypress="document.sqlform.elements[\'LockFromUpdate\'].'
+            . 'checked = true;"';
+        $height = $GLOBALS['cfg']['TextareaRows'] * 1.25;
+    } else {
+        $locking = '';
+        $height = $GLOBALS['cfg']['TextareaRows'] * 2;
+    }
 
     $table          = '';
     $db             = '';
     $fields_list    = array();
-    if (! /*overload*/mb_strlen($GLOBALS['db'])) {
+    if (! strlen($GLOBALS['db'])) {
         // prepare for server related
         $legend = sprintf(
             __('Run SQL query/queries on server %s'),
@@ -159,12 +188,16 @@ function PMA_getHtmlForSqlQueryFormInsert(
                 : $GLOBALS['cfg']['Servers'][$GLOBALS['server']]['host']
             ) . '&quot;'
         );
-    } elseif (! /*overload*/mb_strlen($GLOBALS['table'])) {
+    } elseif (! strlen($GLOBALS['table'])) {
         // prepare for db related
         $db     = $GLOBALS['db'];
         // if you want navigation:
         $tmp_db_link = '<a href="' . $GLOBALS['cfg']['DefaultTabDatabase']
-            . PMA_URL_getCommon(array('db' => $db)) . '"';
+            . '?' . PMA_URL_getCommon($db) . '"';
+        if ($is_querywindow) {
+            $tmp_db_link .= ' target="_self"'
+                . ' onclick="this.target=window.opener.frame_content.name"';
+        }
         $tmp_db_link .= '>'
             . htmlspecialchars($db) . '</a>';
         // else use
@@ -180,13 +213,19 @@ function PMA_getHtmlForSqlQueryFormInsert(
         $db     = $GLOBALS['db'];
         // Get the list and number of fields
         // we do a try_query here, because we could be in the query window,
-        // trying to synchronize and the table has not yet been created
+        // trying to synchonize and the table has not yet been created
         $fields_list = $GLOBALS['dbi']->getColumns(
             $db, $GLOBALS['table'], null, true
         );
 
         $tmp_db_link = '<a href="' . $GLOBALS['cfg']['DefaultTabDatabase']
-            . PMA_URL_getCommon(array('db' => $db)) . '"';
+            . '?' . PMA_URL_getCommon($db) . '"';
+        if ($is_querywindow) {
+            $tmp_db_link .= 'target="_parent" '
+                . 'onclick="window.opener.location.href = \''
+                . $GLOBALS['cfg']['DefaultTabDatabase']
+                . '?' . PMA_URL_getCommon($db) . '\';return false;"';
+        }
         $tmp_db_link .= '>'
             . htmlspecialchars($db) . '</a>';
         // else use
@@ -247,7 +286,7 @@ function PMA_getHtmlForSqlQueryFormInsert(
             $html .= '<option value="'
                 . PMA_Util::backquote(htmlspecialchars($field['Field'])) . '"';
             if (isset($field['Field'])
-                && /*overload*/mb_strlen($field['Field'])
+                && strlen($field['Field'])
                 && isset($field['Comment'])
             ) {
                 $html .= ' title="' . htmlspecialchars($field['Comment']) . '"';
@@ -272,8 +311,7 @@ function PMA_getHtmlForSqlQueryFormInsert(
     $html .= '<div class="clearfloat"></div>' . "\n";
     $html .= '</div>' . "\n";
 
-    $cfgBookmark = PMA_Bookmark_getParams();
-    if ($cfgBookmark) {
+    if (! empty($GLOBALS['cfg']['Bookmark'])) {
         $html .= '<div id="bookmarkoptions">';
         $html .= '<div class="formelement">';
         $html .= '<label for="bkm_label">'
@@ -303,6 +341,13 @@ function PMA_getHtmlForSqlQueryFormInsert(
     $html .= '<fieldset id="queryboxfooter" class="tblFooters">' . "\n";
     $html .= '<div class="formelement">' . "\n";
 
+    if ($is_querywindow) {
+        $html .= '<input type="checkbox" '
+            . 'name="LockFromUpdate" checked="checked" tabindex="120" '
+            . 'id="checkbox_lock" /> <label for="checkbox_lock">'
+            . __('Do not overwrite this query from outside the window')
+            . '</label>';
+    }
     $html .= '</div>' . "\n";
     $html .= '<div class="formelement">' . "\n";
     $html .= '<label for="id_sql_delimiter">[ ' . __('Delimiter')
@@ -316,22 +361,23 @@ function PMA_getHtmlForSqlQueryFormInsert(
         . '<label for="checkbox_show_query">' . __('Show this query here again')
         . '</label>';
 
-    $html .= '<input type="checkbox" name="retain_query_box" value="1" '
-        . 'id="retain_query_box" tabindex="133" '
-        . ($GLOBALS['cfg']['RetainQueryBox'] === false
-            ? '' : ' checked="checked"')
-        . ' />'
-        . '<label for="retain_query_box">' . __('Retain query box')
-        . '</label>';
-
-    $html .= '<input type="checkbox" name="rollback_query" value="1" '
-        . 'id="rollback_query" tabindex="134" />'
-        . '<label for="rollback_query">' . __('Rollback when finished')
-        . '</label>';
-
+    if (! $is_querywindow) {
+        $html .= '<input type="checkbox" name="retain_query_box" value="1" '
+            . 'id="retain_query_box" tabindex="133" '
+            . ($GLOBALS['cfg']['RetainQueryBox'] === false
+                ? '' : ' checked="checked"')
+            . ' />'
+            . '<label for="retain_query_box">' . __('Retain query box')
+            . '</label>';
+    }
     $html .= '</div>' . "\n";
     $html .= '<input type="submit" id="button_submit_query" name="SQL"';
-
+    if ($is_querywindow) {
+        $html .= 'onclick="var form = this.parentNode.parentNode;'
+            . ' window.opener.name = \'sqlParentWindow\';'
+            . ' form.target = \'sqlParentWindow\';'
+            . ' return checkSqlQuery(form);"';
+    }
     $html .= ' tabindex="200" value="' . __('Go') . '" />' . "\n";
     $html .= '<div class="clearfloat"></div>' . "\n";
     $html .= '</fieldset>' . "\n";
@@ -342,7 +388,7 @@ function PMA_getHtmlForSqlQueryFormInsert(
 /**
  * return HTML for sql Query Form Bookmark
  *
- * @return string|null
+ * @return string|void
  *
  * @usedby  PMA_getHtmlForSqlQueryForm()
  */
@@ -350,7 +396,7 @@ function PMA_getHtmlForSqlQueryFormBookmark()
 {
     $bookmark_list = PMA_Bookmark_getList($GLOBALS['db']);
     if (! $bookmark_list || count($bookmark_list) < 1) {
-        return null;
+        return;
     }
 
     $html  = '<fieldset id="fieldsetBookmarkOptions">';
@@ -442,7 +488,7 @@ function PMA_getHtmlForSqlQueryFormUpload()
         );
     } elseif (!empty($files)) {
         $html .= '<div class="formelement">';
-        $html .= '<strong>' . __('web server upload directory:') . '</strong>';
+        $html .= '<strong>' . __('web server upload directory:') . '</strong>' . "\n";
         $html .= '<select size="1" name="sql_localfile">' . "\n";
         $html .= '<option value="" selected="selected"></option>' . "\n";
         $html .= $files;
@@ -452,6 +498,7 @@ function PMA_getHtmlForSqlQueryFormUpload()
 
     $html .= '<div class="clearfloat"></div>' . "\n";
     $html .= '</fieldset>';
+
 
     $html .= '<fieldset id="" class="tblFooters">';
     $html .= __('Character set of the file:') . "\n";

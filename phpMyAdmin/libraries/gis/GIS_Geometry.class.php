@@ -84,7 +84,7 @@ abstract class PMA_GIS_Geometry
      *
      * @param string $spatial spatial data of a row
      *
-     * @return array array containing the min, max values for x and y coordinates
+     * @return array array containing the min, max values for x and y cordinates
      * @access public
      */
     public abstract function scaleRow($spatial);
@@ -135,11 +135,11 @@ abstract class PMA_GIS_Geometry
      */
     protected function setMinMax($point_set, $min_max)
     {
-        // Separate each point
+        // Seperate each point
         $points = explode(",", $point_set);
 
         foreach ($points as $point) {
-            // Extract coordinates of the point
+            // Extract cordinates of the point
             $cordinates = explode(" ", $point);
 
             $x = (float) $cordinates[0];
@@ -176,11 +176,10 @@ abstract class PMA_GIS_Geometry
             . '|POLYGON|MULTIPOLYGON|GEOMETRYCOLLECTION)';
         $srid = 0;
         $wkt = '';
-
         if (preg_match("/^'" . $geom_types . "\(.*\)',[0-9]*$/i", $value)) {
-            $last_comma = /*overload*/mb_strripos($value, ",");
-            $srid = trim(/*overload*/mb_substr($value, $last_comma + 1));
-            $wkt = trim(/*overload*/mb_substr($value, 1, $last_comma - 2));
+            $last_comma = strripos($value, ",");
+            $srid = trim(substr($value, $last_comma + 1));
+            $wkt = trim(substr($value, 1, $last_comma - 2));
         } elseif (preg_match("/^" . $geom_types . "\(.*\)$/i", $value)) {
             $wkt = $value;
         }
@@ -190,9 +189,9 @@ abstract class PMA_GIS_Geometry
     /**
      * Extracts points, scales and returns them as an array.
      *
-     * @param string  $point_set  string of comma separated points
-     * @param array   $scale_data data related to scaling
-     * @param boolean $linear     if true, as a 1D array, else as a 2D array
+     * @param string     $point_set  string of comma sperated points
+     * @param null|array $scale_data data related to scaling
+     * @param boolean    $linear     if true, as a 1D array, else as a 2D array
      *
      * @return array scaled points
      * @access protected
@@ -201,17 +200,17 @@ abstract class PMA_GIS_Geometry
     {
         $points_arr = array();
 
-        // Separate each point
+        // Seperate each point
         $points = explode(",", $point_set);
 
         foreach ($points as $point) {
-            // Extract coordinates of the point
+            // Extract cordinates of the point
             $cordinates = explode(" ", $point);
 
             if (isset($cordinates[0]) && trim($cordinates[0]) != ''
                 && isset($cordinates[1]) && trim($cordinates[1]) != ''
             ) {
-                if ($scale_data != null) {
+                if ($scale_data !== null) {
                     $x = ($cordinates[0] - $scale_data['x']) * $scale_data['scale'];
                     $y = $scale_data['height']
                         - ($cordinates[1] - $scale_data['y']) * $scale_data['scale'];
@@ -223,6 +222,7 @@ abstract class PMA_GIS_Geometry
                 $x = '';
                 $y = '';
             }
+
 
             if (! $linear) {
                 $points_arr[] = array($x, $y);
@@ -251,12 +251,7 @@ abstract class PMA_GIS_Geometry
             $rings = explode("),(", $polygon);
             $ol_array .= $this->getPolygonForOpenLayers($rings, $srid) . ', ';
         }
-
-        $ol_array = /*overload*/mb_substr(
-            $ol_array,
-            0,
-            /*overload*/mb_strlen($ol_array) - 2
-        );
+        $ol_array = substr($ol_array, 0, strlen($ol_array) - 2);
         $ol_array .= ')';
 
         return $ol_array;
@@ -301,12 +296,7 @@ abstract class PMA_GIS_Geometry
             );
             $ol_array .= ', ';
         }
-
-        $ol_array = /*overload*/mb_substr(
-            $ol_array,
-            0,
-            /*overload*/mb_strlen($ol_array) - 2
-        );
+        $ol_array = substr($ol_array, 0, strlen($ol_array) - 2);
         $ol_array .= ')';
 
         return $ol_array;
@@ -346,12 +336,7 @@ abstract class PMA_GIS_Geometry
         foreach ($points_arr as $point) {
             $ol_array .= $this->getPointForOpenLayers($point, $srid) . ', ';
         }
-
-        $ol_array = /*overload*/mb_substr(
-            $ol_array,
-            0,
-            /*overload*/mb_strlen($ol_array) - 2
-        );
+        $ol_array = substr($ol_array, 0, strlen($ol_array) - 2);
         $ol_array .= ')';
 
         return $ol_array;

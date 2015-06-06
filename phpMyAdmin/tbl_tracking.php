@@ -9,7 +9,7 @@
 // Run common work
 require_once './libraries/common.inc.php';
 
-require_once './libraries/tracking.lib.php';
+require_once './libraries/tbl_tracking.lib.php';
 
 define('TABLE_MAY_BE_ABSENT', true);
 require './libraries/tbl_common.inc.php';
@@ -143,9 +143,8 @@ if ($last_version > 0) {
     );
 }
 
-$type = PMA_Table::isView($GLOBALS['db'], $GLOBALS['table']) ? 'view' : 'table';
 $html .= PMA_getHtmlForDataDefinitionAndManipulationStatements(
-    $url_query, $last_version, $type
+    $url_query, $last_version
 );
 
 $html .= '<br class="clearfloat"/>';

@@ -34,11 +34,9 @@ function PMA_getUrlParams(
         'query_type' => $what,
         'reload' => (! empty($reload) ? 1 : 0),
     );
-    if (/*overload*/mb_strpos(' ' . $action, 'db_') == 1) {
+    if (strpos(' ' . $action, 'db_') == 1) {
         $_url_params['db']= $db;
-    } elseif (/*overload*/mb_strpos(' ' . $action, 'tbl_') == 1
-        || $what == 'row_delete'
-    ) {
+    } elseif (strpos(' ' . $action, 'tbl_') == 1 || $what == 'row_delete') {
         $_url_params['db']= $db;
         $_url_params['table']= $table;
     }
@@ -73,7 +71,7 @@ function PMA_getUrlParams(
  * @param array  $selected    selected tables
  * @param string $db          db name
  * @param string $table       table name
- * @param array  $views       table views
+ * @param string $views       table views
  * @param string $primary     table primary
  * @param string $from_prefix from prefix original
  * @param string $to_prefix   to prefix original
@@ -226,17 +224,8 @@ function PMA_getQueryStrFromSelected(
 
         case 'replace_prefix_tbl':
             $current = $selected[$i];
-            $subFromPrefix = /*overload*/mb_substr(
-                $current,
-                0,
-                /*overload*/mb_strlen($from_prefix)
-            );
-            if ($subFromPrefix == $from_prefix) {
-                $newtablename = $to_prefix
-                    . /*overload*/mb_substr(
-                        $current,
-                        /*overload*/mb_strlen($from_prefix)
-                    );
+            if (substr($current, 0, strlen($from_prefix)) == $from_prefix) {
+                $newtablename = $to_prefix . substr($current, strlen($from_prefix));
             } else {
                 $newtablename = $current;
             }
@@ -250,8 +239,12 @@ function PMA_getQueryStrFromSelected(
 
         case 'copy_tbl_change_prefix':
             $current = $selected[$i];
-            $newtablename = $to_prefix .
-                /*overload*/mb_substr($current, /*overload*/mb_strlen($from_prefix));
+            if (substr($current, 0, strlen($from_prefix)) == $from_prefix) {
+                $newtablename = $to_prefix . substr($current, strlen($from_prefix));
+            } else {
+                $newtablename = $current;
+            }
+            $newtablename = $to_prefix . substr($current, strlen($from_prefix));
             // COPY TABLE AND CHANGE PREFIX PATTERN
             $a_query = 'CREATE TABLE '
                 . PMA_Util::backquote($newtablename)
@@ -283,7 +276,7 @@ function PMA_getQueryStrFromSelected(
 
     if ($deletes && ! empty($_REQUEST['pos'])) {
         $_REQUEST['pos'] = PMA_calculatePosForLastPage(
-            $db, $table, isset($_REQUEST['pos']) ? $_REQUEST['pos'] : null
+            $db, $table, $_REQUEST['pos']
         );
     }
 
@@ -471,12 +464,12 @@ function PMA_getHtmlForOtherActions($what, $action, $_url_params, $full_query)
  * Get List of information for Submit Mult
  *
  * @param string $submit_mult mult_submit type
- * @param string $db          database name
- * @param string $table       table name
+ * @param string $db          dtabase name
+ * @param array  $table       table name
  * @param array  $selected    the selected columns
- * @param string $action      action type
+ * @param array  $action      action type
  *
- * @return array
+ * @return array()
  */
 function PMA_getDataForSubmitMult($submit_mult, $db, $table, $selected, $action)
 {
@@ -484,7 +477,7 @@ function PMA_getDataForSubmitMult($submit_mult, $db, $table, $selected, $action)
     $query_type = null;
     $is_unset_submit_mult = false;
     $mult_btn = null;
-    $centralColsError = null;
+
     switch ($submit_mult) {
     case 'drop':
         $what     = 'drop_fld';
@@ -522,14 +515,6 @@ function PMA_getDataForSubmitMult($submit_mult, $db, $table, $selected, $action)
         $query_type = 'fulltext_fld';
         $mult_btn   = __('Yes');
         break;
-    case 'add_to_central_columns':
-        include_once 'libraries/central_columns.lib.php';
-        $centralColsError = PMA_syncUniqueColumns($selected, false);
-        break;
-    case 'remove_from_central_columns':
-        include_once 'libraries/central_columns.lib.php';
-        $centralColsError = PMA_deleteColumnsFromList($selected, false);
-        break;
     case 'change':
         PMA_displayHtmlForColumnChange($db, $table, $selected, $action);
         // execution stops here but PMA_Response correctly finishes
@@ -539,24 +524,22 @@ function PMA_getDataForSubmitMult($submit_mult, $db, $table, $selected, $action)
         // this should already be handled by tbl_structure.php
     }
 
-    return array(
-        $what, $query_type, $is_unset_submit_mult, $mult_btn,
-        $centralColsError
-            );
+    return array($what, $query_type, $is_unset_submit_mult, $mult_btn);
 }
 
 /**
  * Get query string from Selected
  *
  * @param string $what     mult_submit type
- * @param string $db       database name
- * @param string $table    table name
+ * @param string $db       dtabase name
+ * @param array  $table    table name
  * @param array  $selected the selected columns
+ * @param array  $action   action type
  * @param array  $views    table views
  *
- * @return array
+ * @return array()
  */
-function PMA_getQueryFromSelected($what, $db, $table, $selected, $views)
+function PMA_getQueryFromSelected($what, $db, $table, $selected, $action, $views)
 {
     $reload = null;
     $full_query_views = null;

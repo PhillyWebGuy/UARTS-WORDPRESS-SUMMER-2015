@@ -18,6 +18,7 @@ require_once 'libraries/operations.lib.php';
 
 $pma_table = new PMA_Table($GLOBALS['table'], $GLOBALS['db']);
 $response = PMA_Response::getInstance();
+
 /**
  * Runs common work
  */
@@ -73,17 +74,12 @@ if ($is_aria) {
 $reread_info = false;
 $table_alters = array();
 
-/** @var PMA_String $pmaString */
-$pmaString = $GLOBALS['PMA_String'];
-
 /**
  * If the table has to be moved to some other database
  */
 if (isset($_REQUEST['submit_move']) || isset($_REQUEST['submit_copy'])) {
-    //$_message = '';
-    PMA_moveOrCopyTable($db, $table);
-    // This was ended in an Ajax call
-    exit;
+    $_message = '';
+    include_once 'tbl_move_copy.php';
 }
 /**
  * If the table has to be maintained
@@ -113,7 +109,7 @@ if (isset($_REQUEST['submitoptions'])) {
     }
 
     if (! empty($_REQUEST['new_tbl_storage_engine'])
-        && /*overload*/mb_strtolower($_REQUEST['new_tbl_storage_engine']) !== /*overload*/mb_strtolower($tbl_storage_engine)
+        && strtolower($_REQUEST['new_tbl_storage_engine']) !== strtolower($tbl_storage_engine)
     ) {
         $new_tbl_storage_engine = $_REQUEST['new_tbl_storage_engine'];
         // reset the globals for the new engine
@@ -164,8 +160,6 @@ if (isset($_REQUEST['submitorderby']) && ! empty($_REQUEST['order_field'])) {
 /**
  * A partition operation has been requested by the user
  */
-$sql_query = '';
-
 if (isset($_REQUEST['submit_partition'])
     && ! empty($_REQUEST['partition_operation'])
 ) {
@@ -277,8 +271,8 @@ if (! $hideOrderTable) {
  */
 $response->addHTML(PMA_getHtmlForMoveTable());
 
-if (/*overload*/mb_strstr($show_comment, '; InnoDB free') === false) {
-    if (/*overload*/mb_strstr($show_comment, 'InnoDB free') === false) {
+if (strstr($show_comment, '; InnoDB free') === false) {
+    if (strstr($show_comment, 'InnoDB free') === false) {
         // only user entered comment
         $comment = $show_comment;
     } else {
@@ -399,7 +393,7 @@ unset($partition_names);
 
 if ($cfgRelation['relwork'] && ! $is_innodb) {
     $GLOBALS['dbi']->selectDb($GLOBALS['db']);
-    $foreign = PMA_getForeigners($GLOBALS['db'], $GLOBALS['table'], '', 'internal');
+    $foreign = PMA_getForeigners($GLOBALS['db'], $GLOBALS['table']);
 
     if ($foreign) {
         $response->addHTML(

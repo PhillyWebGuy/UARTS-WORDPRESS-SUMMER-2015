@@ -19,7 +19,7 @@ class PMA_Types
     /**
      * Returns list of unary operators.
      *
-     * @return string[]
+     * @return array
      */
     public function getUnaryOperators()
     {
@@ -46,7 +46,7 @@ class PMA_Types
     /**
      * Returns list of operators checking for NULL.
      *
-     * @return string[]
+     * @return array
      */
     public function getNullOperators()
     {
@@ -59,7 +59,7 @@ class PMA_Types
     /**
      * ENUM search operators
      *
-     * @return string[]
+     * @return array
      */
     public function getEnumOperators()
     {
@@ -72,7 +72,7 @@ class PMA_Types
     /**
      * TEXT search operators
      *
-     * @return string[]
+     * @return array
      */
     public function getTextOperators()
     {
@@ -97,7 +97,7 @@ class PMA_Types
     /**
      * Number search operators
      *
-     * @return string[]
+     * @return array
      */
     public function getNumberOperators()
     {
@@ -124,7 +124,7 @@ class PMA_Types
      * @param string  $type Type of field
      * @param boolean $null Whether field can be NULL
      *
-     * @return string[]
+     * @return array
      */
     public function getTypeOperators($type, $null)
     {
@@ -205,7 +205,7 @@ class PMA_Types
      *
      * @param string $class The class to get function list.
      *
-     * @return string[]
+     * @return array
      *
      */
     public function getFunctionsClass($class)
@@ -218,7 +218,7 @@ class PMA_Types
      *
      * @param string $type The data type to get function list.
      *
-     * @return string[]
+     * @return array
      *
      */
     public function getFunctions($type)
@@ -230,7 +230,7 @@ class PMA_Types
     /**
      * Returns array of all functions available.
      *
-     * @return string[]
+     * @return array
      *
      */
     public function getAllFunctions()
@@ -248,7 +248,7 @@ class PMA_Types
     /**
      * Returns array of all attributes available.
      *
-     * @return string[]
+     * @return array
      *
      */
     public function getAttributes()
@@ -259,7 +259,7 @@ class PMA_Types
     /**
      * Returns array of all column types available.
      *
-     * @return string[]
+     * @return array
      *
      */
     public function getColumns()
@@ -314,7 +314,7 @@ class PMA_Types_MySQL extends PMA_Types
      */
     public function getTypeDescription($type)
     {
-        $type = /*overload*/mb_strtoupper($type);
+        $type = strtoupper($type);
         switch ($type) {
         case 'TINYINT':
             return __('A 1-byte integer, signed range is -128 to 127, unsigned range is 0 to 255');
@@ -409,7 +409,7 @@ class PMA_Types_MySQL extends PMA_Types
      */
     public function getTypeClass($type)
     {
-        $type = /*overload*/mb_strtoupper($type);
+        $type = strtoupper($type);
         switch ($type) {
         case 'TINYINT':
         case 'SMALLINT':
@@ -467,7 +467,7 @@ class PMA_Types_MySQL extends PMA_Types
      *
      * @param string $class The class to get function list.
      *
-     * @return string[]
+     * @return array
      *
      */
     public function getFunctionsClass($class)
@@ -583,6 +583,13 @@ class PMA_Types_MySQL extends PMA_Types
                 'WEEKOFYEAR',
                 'YEARWEEK',
             );
+            // remove functions that are unavailable on current server
+            if (PMA_MYSQL_INT_VERSION < 50500) {
+                $ret = array_diff($ret, array('TO_SECONDS'));
+            }
+            if (PMA_MYSQL_INT_VERSION < 50120) {
+                $ret = array_diff($ret, array('UUID_SHORT'));
+            }
             return $ret;
 
         case 'SPATIAL':
@@ -613,7 +620,7 @@ class PMA_Types_MySQL extends PMA_Types
     /**
      * Returns array of all attributes available.
      *
-     * @return string[]
+     * @return array
      *
      */
     public function getAttributes()
@@ -633,7 +640,7 @@ class PMA_Types_MySQL extends PMA_Types
      * VARCHAR, TINYINT, TEXT and DATE are listed first, based on
      * estimated popularity.
      *
-     * @return string[]
+     * @return array
      *
      */
     public function getColumns()
@@ -656,6 +663,7 @@ class PMA_Types_MySQL extends PMA_Types
             'BOOLEAN',
             'SERIAL',
         );
+
 
         // Date/Time
         $ret[_pgettext('date and time types', 'Date and time')] = array(
@@ -762,7 +770,7 @@ class PMA_Types_Drizzle extends PMA_Types
      */
     public function getTypeDescription($type)
     {
-        $type = /*overload*/mb_strtoupper($type);
+        $type = strtoupper($type);
         switch ($type) {
         case 'INTEGER':
             return __('A 4-byte integer, range is -2,147,483,648 to 2,147,483,647');
@@ -811,7 +819,7 @@ class PMA_Types_Drizzle extends PMA_Types
      */
     public function getTypeClass($type)
     {
-        $type = /*overload*/mb_strtoupper($type);
+        $type = strtoupper($type);
         switch ($type) {
         case 'INTEGER':
         case 'BIGINT':
@@ -845,7 +853,7 @@ class PMA_Types_Drizzle extends PMA_Types
      *
      * @param string $class The class to get function list.
      *
-     * @return string[]
+     * @return array
      *
      */
     public function getFunctionsClass($class)
@@ -979,7 +987,7 @@ class PMA_Types_Drizzle extends PMA_Types
     /**
      * Returns array of all attributes available.
      *
-     * @return string[]
+     * @return array
      *
      */
     public function getAttributes()
@@ -993,7 +1001,7 @@ class PMA_Types_Drizzle extends PMA_Types
     /**
      * Returns array of all column types available.
      *
-     * @return string[]
+     * @return array
      *
      */
     public function getColumns()

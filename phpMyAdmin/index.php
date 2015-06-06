@@ -53,10 +53,6 @@ if (! empty($_REQUEST['target'])
     exit;
 }
 
-if (isset($_REQUEST['ajax_request']) && ! empty($_REQUEST['access_time'])) {
-    exit;
-}
-
 // See FAQ 1.34
 if (! empty($_REQUEST['db'])) {
     $page = null;
@@ -101,8 +97,7 @@ if (! empty($message)) {
     unset($message);
 }
 
-$common_url_query =  PMA_URL_getCommon();
-$mysql_cur_user_and_host = '';
+$common_url_query =  PMA_URL_getCommon('', '');
 
 // when $server > 0, a server has been chosen so we can display
 // all MySQL-related information
@@ -185,7 +180,7 @@ if ($server > 0 || count($cfg['Servers']) > 1
                 PMA_printListItem(
                     PMA_Util::getImage('s_passwd.png') . " " . __('Change password'),
                     'li_change_password',
-                    'user_password.php' . $common_url_query,
+                    'user_password.php?' . $common_url_query,
                     null,
                     null,
                     'change_password_anchor',
@@ -211,6 +206,7 @@ if ($server > 0 || count($cfg['Servers']) > 1
                'select_collation_connection',
                $collation_connection,
                true,
+               4,
                true
            )
            . '        </form>' . "\n"
@@ -253,7 +249,7 @@ if ($server > 0) {
     PMA_printListItem(
         PMA_Util::getImage('b_tblops.png') . " " . __('More settings'),
         'li_user_preferences',
-        'prefs_manage.php' . $common_url_query,
+        'prefs_manage.php?' . $common_url_query,
         null,
         null,
         null,
@@ -348,7 +344,7 @@ if ($GLOBALS['cfg']['ShowServerInfo'] || $GLOBALS['cfg']['ShowPhpInfo']) {
         PMA_printListItem(
             __('Show PHP information'),
             'li_phpinfo',
-            'phpinfo.php' . $common_url_query,
+            'phpinfo.php?' . $common_url_query,
             null,
             '_blank'
         );
@@ -369,7 +365,7 @@ if ($GLOBALS['cfg']['VersionCheck']
     $class = 'jsversioncheck';
 }
 PMA_printListItem(
-    __('Version information:') . ' <span class="version">' . PMA_VERSION . '</span>',
+    __('Version information:') . ' ' . PMA_VERSION,
     'li_pma_version',
     null,
     null,
@@ -417,7 +413,7 @@ PMA_printListItem(
 PMA_printListItem(
     __('List of changes'),
     'li_pma_changes',
-    'changelog.php' . PMA_URL_getCommon(),
+    PMA_linkURL('changelog.php'),
     null,
     '_blank'
 );
@@ -504,7 +500,7 @@ if ($GLOBALS['cfg']['LoginCookieStore'] != 0
 /**
  * Check if user does not have defined blowfish secret and it is being used.
  */
-if (! empty($_SESSION['encryption_key'])
+if (! empty($_SESSION['auto_blowfish_secret'])
     && empty($GLOBALS['cfg']['blowfish_secret'])
 ) {
     trigger_error(
@@ -529,21 +525,9 @@ if ($server > 0) {
     if (! $cfgRelation['allworks']
         && $cfg['PmaNoRelation_DisableWarning'] == false
     ) {
-        $msg_text = __(
-            'The phpMyAdmin configuration storage is not completely '
-            . 'configured, some extended features have been deactivated. '
-            . '%sFind out why%s. '
-        );
-        if ($cfg['ZeroConf'] == true) {
-            $msg_text .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' .
-                __(
-                    'Or alternately go to \'Operations\' tab of any database '
-                    . 'to set it up there.'
-                );
-        }
-        $msg = PMA_Message::notice($msg_text);
+        $msg = PMA_Message::notice(__('The phpMyAdmin configuration storage is not completely configured, some extended features have been deactivated. To find out why click %shere%s.'));
         $msg->addParam(
-            '<a href="' . $cfg['PmaAbsoluteUri'] . 'chk_rel.php'
+            '<a href="' . $cfg['PmaAbsoluteUri'] . 'chk_rel.php?'
             . $common_url_query . '">',
             false
         );
@@ -564,23 +548,15 @@ if ($server > 0) {
  * If no default server is set, $GLOBALS['dbi'] is not defined yet.
  * Drizzle can speak MySQL protocol, so don't warn about version mismatch for
  * Drizzle servers.
- * We also do not warn if MariaDB is detected, as it has its own version
- * numbering.
  */
 if (isset($GLOBALS['dbi'])
     && !PMA_DRIZZLE
     && $cfg['ServerLibraryDifference_DisableWarning'] == false
 ) {
-    /** @var PMA_String $pmaString */
-    $pmaString = $GLOBALS['PMA_String'];
-
     $_client_info = $GLOBALS['dbi']->getClientInfo();
     if ($server > 0
-        && /*overload*/mb_strpos($_client_info, 'mysqlnd') === false
-        && /*overload*/mb_strpos(PMA_MYSQL_STR_VERSION, 'MariaDB') === false
-        && substr(PMA_MYSQL_CLIENT_API, 0, 3) != substr(
-            PMA_MYSQL_INT_VERSION, 0, 3
-        )
+        && strpos($_client_info, 'mysqlnd') === false
+        && substr(PMA_MYSQL_CLIENT_API, 0, 3) != substr(PMA_MYSQL_INT_VERSION, 0, 3)
     ) {
         trigger_error(
             PMA_sanitize(

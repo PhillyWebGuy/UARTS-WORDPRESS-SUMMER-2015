@@ -18,8 +18,8 @@ $version = PMA_Util::getLatestVersion();
 
 echo json_encode(
     array(
-        'version' => (! empty($version->version) ? $version->version : ''),
-        'date' => (! empty($version->date) ? $version->date : ''),
+        'version' => $version->version,
+        'date' => $version->date,
     )
 );
 

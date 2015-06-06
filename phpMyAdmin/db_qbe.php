@@ -20,9 +20,8 @@ $response = PMA_Response::getInstance();
 $cfgRelation = PMA_getRelationsParam();
 
 $savedSearchList = array();
-$savedSearch = null;
 $currentSearchId = null;
-if (isset($cfgRelation['savedsearcheswork']) && $cfgRelation['savedsearcheswork']) {
+if ($cfgRelation['savedsearcheswork']) {
     include 'libraries/SavedSearches.class.php';
     $header = $response->getHeader();
     $scripts = $header->getScripts();
@@ -86,7 +85,7 @@ if (isset($_REQUEST['submit_sql']) && ! empty($sql_query)) {
         include_once 'libraries/parse_analyze.inc.php';
 
         PMA_executeQueryAndSendQueryResponse(
-            $analyzed_sql_results, false, $_REQUEST['db'], null, false, null, null,
+            $analyzed_sql_results, false, $_REQUEST['db'], null, null, null, null,
             false, null, null, null, null, $goto, $pmaThemeImage, null, null, null,
             $sql_query, null, null
         );
@@ -111,8 +110,8 @@ $db_qbe = new PMA_DBQbe($GLOBALS['db'], $savedSearchList, $savedSearch);
 /**
  * Displays the Query by example form
  */
-if ($cfgRelation['pdfwork']) {
-    $url = 'db_designer.php' . PMA_URL_getCommon(
+if ($cfgRelation['designerwork']) {
+    $url = 'pmd_general.php' . PMA_URL_getCommon(
         array_merge(
             $url_params,
             array('query' => 1)

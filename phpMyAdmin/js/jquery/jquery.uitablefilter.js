@@ -19,13 +19,9 @@
  *   optional arguments:
  *     array of columns to limit search too (the column title in the table header)
  *     ifHidden - callback to execute if one or more elements was hidden
- *     tdElem - specific element within <td> to be considered for searching or to limit search to,
- *     default:whole <td>. useful if <td> has more than one elements inside but want to
- *     limit search within only some of elements or only visible elements. eg tdElem can be "td span"
  */
 (function($) {
-  $.uiTableFilter = function(jq, phrase, column, ifHidden, tdElem){
-    if(!tdElem) tdElem = "td";
+  $.uiTableFilter = function(jq, phrase, column, ifHidden){
     var new_hidden = false;
     if( this.last_phrase === phrase ) return false;
 
@@ -64,7 +60,7 @@
           for (var i = 0; i < index.length; i++)
           {
               if (i != 0) {selector += ",";}
-              selector += tdElem + ":eq(" + index[i] + ")";
+              selector += "td:eq(" + index[i] + ")";
           }
           return $(elem.find((selector))).text();
       }

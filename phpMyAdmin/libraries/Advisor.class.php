@@ -26,7 +26,7 @@ class Advisor
      *
      * @return array with run and parse results
      */
-    public function run()
+    function run()
     {
         // HowTo: A simple Advisory system in 3 easy steps.
 
@@ -71,7 +71,7 @@ class Advisor
      *
      * @return void
      */
-    public function storeError($description, $exception)
+    function storeError($description, $exception)
     {
         $this->runResult['errors'][] = $description
             . ' '
@@ -86,7 +86,7 @@ class Advisor
      *
      * @return boolean
      */
-    public function runRules()
+    function runRules()
     {
         $this->runResult = array(
             'fired' => array(),
@@ -160,7 +160,7 @@ class Advisor
      *
      * @return string
      */
-    public static function escapePercent($str)
+    static function escapePercent($str)
     {
         return preg_replace('/%( |,|\.|$|\(|\)|<|>)/', '%%\1', $str);
     }
@@ -169,11 +169,11 @@ class Advisor
      * Wrapper function for translating.
      *
      * @param string $str   the string
-     * @param string $param the parameters
+     * @param mixed  $param the parameters
      *
      * @return string
      */
-    public function translate($str, $param = null)
+    function translate($str, $param = null)
     {
         $string = _gettext(Advisor::escapePercent($str));
         if ( ! is_null($param)) {
@@ -189,9 +189,9 @@ class Advisor
      *
      * @param array $rule the rule
      *
-     * @return string[]
+     * @return array
      */
-    public static function splitJustification($rule)
+    static function splitJustification($rule)
     {
         $jst = preg_split('/\s*\|\s*/', $rule['justification'], 2);
         if (count($jst) > 1) {
@@ -208,7 +208,7 @@ class Advisor
      *
      * @return void
      */
-    public function addRule($type, $rule)
+    function addRule($type, $rule)
     {
         switch($type) {
         case 'notfired':
@@ -241,7 +241,7 @@ class Advisor
             // linking to server_variables.php
             $rule['recommendation'] = preg_replace(
                 '/\{([a-z_0-9]+)\}/Ui',
-                '<a href="server_variables.php' . PMA_URL_getCommon()
+                '<a href="server_variables.php?' . PMA_URL_getCommon()
                 . '&filter=\1">\1</a>',
                 $this->translate($rule['recommendation'])
             );
@@ -319,11 +319,11 @@ class Advisor
      *
      * @param string $expr expression to evaluate
      *
-     * @return integer result of evaluated expression
+     * @return string result of evaluated expression
      *
      * @throws Exception
      */
-    public function ruleExprEvaluate($expr)
+    function ruleExprEvaluate($expr)
     {
         // Evaluate fired() conditions
         $expr = preg_replace_callback(
@@ -368,7 +368,7 @@ class Advisor
      *
      * @return array with parsed data
      */
-    public static function parseRulesFile()
+    static function parseRulesFile()
     {
         $file = file('libraries/advisory_rules.txt', FILE_IGNORE_NEW_LINES);
         $errors = array();
@@ -443,9 +443,7 @@ class Advisor
                     );
                     continue;
                 }
-                $rules[$ruleNo][$ruleSyntax[$ruleLine]] = chop(
-                    /*overload*/mb_substr($line, 1)
-                );
+                $rules[$ruleNo][$ruleSyntax[$ruleLine]] = chop(substr($line, 1));
                 $lines[$ruleNo][$ruleSyntax[$ruleLine]] = $i + 1;
                 $ruleLine += 1;
             }
@@ -459,7 +457,6 @@ class Advisor
         return array('rules' => $rules, 'lines' => $lines, 'errors' => $errors);
     }
 }
-
 
 /**
  * Formats interval like 10 per hour
@@ -496,8 +493,6 @@ function ADVISOR_bytime($num, $precision)
 /**
  * Wrapper for PMA_Util::timespanFormat
  *
- * This function is used when evaluating advisory_rules.txt
- *
  * @param int $seconds the timespan
  *
  * @return string  the formatted value
@@ -510,13 +505,11 @@ function ADVISOR_timespanFormat($seconds)
 /**
  * Wrapper around PMA_Util::formatByteDown
  *
- * This function is used when evaluating advisory_rules.txt
- *
  * @param double $value the value to format
  * @param int    $limes the sensitiveness
  * @param int    $comma the number of decimals to retain
  *
- * @return string the formatted value with unit
+ * @return array    the formatted value and its unit
  */
 function ADVISOR_formatByteDown($value, $limes = 6, $comma = 0)
 {

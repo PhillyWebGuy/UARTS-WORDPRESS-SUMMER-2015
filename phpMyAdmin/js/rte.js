@@ -142,14 +142,11 @@ RTE.COMMON = {
                 var opts = {
                     lineNumbers: true,
                     matchBrackets: true,
-                    extraKeys: {"Ctrl-Space": "autocomplete"},
-                    hintOptions: {"completeSingle": false, "completeOnSingleClick": true},
                     indentUnit: 4,
                     mode: "text/x-mysql",
                     lineWrapping: true
                 };
-                CodeMirror.fromTextArea($elm[0], opts)
-                    .on("inputRead", codemirrorAutocompleteOnInputRead);
+                CodeMirror.fromTextArea($elm[0], opts);
             } else {
                 PMA_ajaxShowMessage(data.error, false);
             }
@@ -345,15 +342,12 @@ RTE.COMMON = {
                 var opts = {
                     lineNumbers: true,
                     matchBrackets: true,
-                    extraKeys: {"Ctrl-Space": "autocomplete"},
-                    hintOptions: {"completeSingle": false, "completeOnSingleClick": true},
                     indentUnit: 4,
                     mode: "text/x-mysql",
                     lineWrapping: true
                 };
                 if (typeof CodeMirror != 'undefined') {
                     that.syntaxHiglighter = CodeMirror.fromTextArea($elm[0], opts);
-                    that.syntaxHiglighter.on("inputRead", codemirrorAutocompleteOnInputRead);
                 }
                 // Execute item-specific code
                 that.postDialogShow(data);
@@ -824,7 +818,7 @@ $(function () {
     $('select[name=item_type]').live('change', function () {
         $(this)
         .closest('table')
-        .find('tr.recurring_event_row, tr.onetime_event_row, tr.routine_return_row, .routine_direction_cell')
+        .find('tr.recurring_event_row, tr.onetime_event_row, tr.routine_return_row, td.routine_direction_cell')
         .toggle();
     }); // end $.live()
 

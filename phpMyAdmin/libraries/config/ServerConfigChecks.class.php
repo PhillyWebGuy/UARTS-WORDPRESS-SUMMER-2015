@@ -338,7 +338,7 @@ class ServerConfigChecks
             } else {
                 $blowfishWarnings = array();
                 // check length
-                if (/*overload*/mb_strlen($blowfishSecret) < 8) {
+                if (strlen($blowfishSecret) < 8) {
                     // too short key
                     $blowfishWarnings[] = __('Key is too short, it should have at least 8 characters.');
                 }

@@ -42,11 +42,17 @@ abstract class PreApPendTransformationsPlugin extends TransformationsPlugin
      * @param array  $options transformation options
      * @param string $meta    meta information
      *
-     * @return string
+     * @return void
      */
     public function applyTransformation($buffer, $options = array(), $meta = '')
     {
-        $options = $this->getOptions($options, array('', ''));
+        if (! isset($options[0]) ||  $options[0] == '') {
+            $options[0] = '';
+        }
+
+        if (! isset($options[1]) ||  $options[1] == '') {
+            $options[1] = ''; // default empty strings
+        }
 
         //just prepend and/or append the options to the original text
         $newtext = htmlspecialchars($options[0]) . $buffer
@@ -54,6 +60,22 @@ abstract class PreApPendTransformationsPlugin extends TransformationsPlugin
 
         return $newtext;
     }
+
+    /**
+     * This method is called when any PluginManager to which the observer
+     * is attached calls PluginManager::notify()
+     *
+     * @param SplSubject $subject The PluginManager notifying the observer
+     *                            of an update.
+     *
+     * @todo implement
+     * @return void
+     */
+    public function update (SplSubject $subject)
+    {
+        ;
+    }
+
 
     /* ~~~~~~~~~~~~~~~~~~~~ Getters and Setters ~~~~~~~~~~~~~~~~~~~~ */
 

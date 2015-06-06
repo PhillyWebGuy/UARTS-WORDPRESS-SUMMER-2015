@@ -82,12 +82,9 @@ if (!empty($bug_encoded) && is_string($bug_encoded)) {
         $bug_encoded = stripslashes($bug_encoded);
     }
 
-    /** @var PMA_String $pmaString */
-    $pmaString = $GLOBALS['PMA_String'];
-
     $bug_encoded     = preg_replace('/[[:space:]]/', '', $bug_encoded);
     $bug_decoded     = base64_decode($bug_encoded);
-    if (/*overload*/mb_substr($bug_encoded, 0, 2) == 'eN') {
+    if (substr($bug_encoded, 0, 2) == 'eN') {
         if (function_exists('gzuncompress')) {
             $result  = PMA_printDecodedBug(gzuncompress($bug_decoded));
         } else {

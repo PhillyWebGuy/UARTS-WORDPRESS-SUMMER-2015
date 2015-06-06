@@ -1,7 +1,7 @@
 <?php
 /* vim: set expandtab sw=4 ts=4 sts=4: */
 /**
- * searches the entire database
+ * searchs the entire database
  *
  * @todo    make use of UNION when searching multiple tables
  * @todo    display executed query, optional?
@@ -58,6 +58,6 @@ $response->addHTML(
     '<div id="togglesearchresultsdiv"><a id="togglesearchresultlink"></a></div>'
     . '<br class="clearfloat" />'
 );
-$response->addHTML($db_search->getSelectionForm());
+$response->addHTML($db_search->getSelectionForm($url_params));
 $response->addHTML($db_search->getResultDivs());
 ?>

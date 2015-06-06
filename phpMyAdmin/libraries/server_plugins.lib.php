@@ -50,8 +50,7 @@ function PMA_getPluginTab($plugins)
     $html .= '<div id="sectionlinks">';
 
     foreach ($plugins as $plugin_type => $plugin_list) {
-        $key = 'plugins-'
-            . preg_replace('/[^a-z]/', '', /*overload*/mb_strtolower($plugin_type));
+        $key = 'plugins-' . preg_replace('/[^a-z]/', '', strtolower($plugin_type));
         $html .= '<a href="#' . $key . '">'
             . htmlspecialchars($plugin_type) . '</a>' . "\n";
     }
@@ -60,8 +59,7 @@ function PMA_getPluginTab($plugins)
     $html .= '<br />';
 
     foreach ($plugins as $plugin_type => $plugin_list) {
-        $key = 'plugins-'
-            . preg_replace('/[^a-z]/', '', /*overload*/mb_strtolower($plugin_type));
+        $key = 'plugins-' . preg_replace('/[^a-z]/', '', strtolower($plugin_type));
         sort($plugin_list);
 
         $html .= '<table class="data_full_width" id="' . $key . '">';

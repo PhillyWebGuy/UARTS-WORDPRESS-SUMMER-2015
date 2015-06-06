@@ -36,7 +36,8 @@ if ($is_create_db_priv) {
         'db_collation',
         null,
         null,
-        true
+        true,
+        5
     );
 
     if (! empty($dbstats)) {

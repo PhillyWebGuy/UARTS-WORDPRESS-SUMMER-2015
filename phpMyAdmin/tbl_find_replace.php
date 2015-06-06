@@ -25,7 +25,6 @@ if (isset($_POST['find'])) {
         $_POST['columnIndex'],
         $_POST['find'],
         $_POST['replaceWith'],
-        $_POST['useRegex'],
         $connectionCharSet
     );
     $response->addJSON('preview', $preview);
@@ -44,7 +43,6 @@ if (isset($_POST['replace'])) {
         $_POST['columnIndex'],
         $_POST['findString'],
         $_POST['replaceWith'],
-        $_POST['useRegex'],
         $connectionCharSet
     );
     $htmlOutput .= PMA_Util::getMessage(
@@ -57,8 +55,7 @@ if (! isset($goto)) {
     $goto = $GLOBALS['cfg']['DefaultTabTable'];
 }
 // Defines the url to return to in case of error in the next sql statement
-$params = array('db' => $db, 'table' => $table);
-$err_url = $goto . '?' . PMA_URL_getCommon($params);
+$err_url   = $goto . '?' . PMA_URL_getCommon($db, $table);
 // Displays the find and replace form
 $htmlOutput .= $table_search->getSelectionForm($goto);
 $response->addHTML($htmlOutput);

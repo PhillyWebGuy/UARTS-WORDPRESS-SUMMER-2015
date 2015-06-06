@@ -132,7 +132,7 @@ class PMA_StorageEngine
         $name = 'engine', $id = null,
         $selected = null, $offerUnavailableEngines = false
     ) {
-        $selected   = /*overload*/mb_strtolower($selected);
+        $selected   = strtolower($selected);
         $output     = '<select name="' . $name . '"'
             . (empty($id) ? '' : ' id="' . $id . '"') . '>' . "\n";
 
@@ -151,7 +151,7 @@ class PMA_StorageEngine
             $output .= '    <option value="' . htmlspecialchars($key) . '"'
                 . (empty($details['Comment'])
                     ? '' : ' title="' . htmlspecialchars($details['Comment']) . '"')
-                . (/*overload*/mb_strtolower($key) == $selected
+                . (strtolower($key) == $selected
                     || (empty($selected) && $details['Support'] == 'DEFAULT')
                     ? ' selected="selected"' : '')
                 . '>' . "\n"
@@ -167,16 +167,15 @@ class PMA_StorageEngine
      *
      * @param string $engine The engine ID
      *
-     * @return PMA_StorageEngine|bool The engine plugin or false if not found
      * @static
+     * @return PMA_StorageEngine The engine plugin
      */
     static public function getEngine($engine)
     {
         $engine = str_replace('/', '', str_replace('.', '', $engine));
-        $filename = './libraries/engines/'
-            . /*overload*/mb_strtolower($engine) . '.lib.php';
+        $filename = './libraries/engines/' . strtolower($engine) . '.lib.php';
         if (file_exists($filename) && include_once $filename) {
-            switch(/*overload*/mb_strtolower($engine)) {
+            switch(strtolower($engine)) {
             case 'bdb':
                 return new PMA_StorageEngine_Bdb($engine);
             case 'berkeleydb':
@@ -202,11 +201,9 @@ class PMA_StorageEngine
             case 'performance_schema':
                 return new PMA_StorageEngine_PerformanceSchema($engine);
             }
-
-            return false;
+        } else {
+            return new PMA_StorageEngine($engine);
         }
-
-        return new PMA_StorageEngine($engine);
     }
 
     /**
@@ -321,7 +318,7 @@ class PMA_StorageEngine
                 $mysql_vars[$row['Variable_name']]
                     = $variables[$row['Variable_name']];
             } elseif (! $like
-                && /*overload*/mb_strpos(/*overload*/mb_strtolower($row['Variable_name']), /*overload*/mb_strtolower($this->engine)) !== 0
+                && strpos(strtolower($row['Variable_name']), strtolower($this->engine)) !== 0
             ) {
                 continue;
             }
@@ -362,7 +359,7 @@ class PMA_StorageEngine
     }
 
     /**
-     * Information message on whether this storage engine is supported
+     * Information message on whether this storge engine is supported
      *
      * @return string The localized message.
      */
@@ -416,7 +413,7 @@ class PMA_StorageEngine
      */
     public function getVariablesLikePattern()
     {
-        return '';
+        return false;
     }
 
     /**
@@ -432,19 +429,13 @@ class PMA_StorageEngine
     /**
      * Generates the requested information page
      *
-     * @param string $id page id
+     * @param string $id The page ID
      *
-     * @return string html output
+     * @return string|boolean The page or false on error.
      */
     public function getPage($id)
     {
-        if (! array_key_exists($id, $this->getInfoPages())) {
-            return '';
-        }
-
-        $id = 'getPage' . $id;
-
-        return $this->$id();
+        return false;
     }
 }
 
