@@ -6,3 +6,5 @@ _notes
 .DS_Store
 *.DS_Store
 */.DS_Store
+wordpress/wp-config.php
+wp-config.php

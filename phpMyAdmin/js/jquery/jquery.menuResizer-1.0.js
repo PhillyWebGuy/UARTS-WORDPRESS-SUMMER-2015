@@ -51,8 +51,7 @@
                     .removeClass('tabactive');
                 }
             });
-        $container.children('.clearfloat').remove();
-        $container.append($submenu).append("<div class='clearfloat'></div>");
+        $container.append($submenu);
         setTimeout(function () {
             self.resize();
         }, 4);
