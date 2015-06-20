@@ -1,11 +1,11 @@
-1.	/*
-2.	Theme Name: Leeway Child Theme
-3.	Theme URI: http://www.uartsce.com/~ehertzog/wordpress
-4.	Description: This is a custom child theme I have created.
-5.	Author: Ed Hertzog
-6.	Author URI: http://www.uartsce.com/~ehertzog/wordpress
-7.	Template: leeway
-8.	Version: 0.1
-9.	*/
+/*
+Theme Name: Leeway Child Theme
+Theme URI: http://www.uartsce.com/~ehertzog/wordpress
+Description: This is a custom child theme I have created.
+Author: Ed Hertzog
+Author URI: http://www.uartsce.com/~ehertzog/wordpress
+Template: leeway
+Version: 0.1
+*/
 
-@import url("../leeway/style.css");
+
